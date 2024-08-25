@@ -1,49 +1,16 @@
 "use client";
 
 /* eslint-disable @next/next/no-img-element */
-
-import { CHAIN_NAMESPACES, IProvider, WEB3AUTH_NETWORK } from "@web3auth/base";
-import { EthereumPrivateKeyProvider } from "@web3auth/ethereum-provider";
-import { Web3Auth } from "@web3auth/modal";
+import { web3auth } from "../../api/auth";
+import { IProvider } from "@web3auth/base";
 import { useEffect, useState } from "react";
-import dotenv from "dotenv";
-
-dotenv.config({ path: "web/.env" });
-
-// import RPC from "./ethersRPC";
-import RPC from "../../api/viemRPC";
-// import RPC from "./web3RPC";
-
-// ADD IN DOTENV
-const clientId =
-    "BIn_YLNB6DaqsmCw5gTK9VrdOKeDSUixUnOqVFdcr_HCC_sUIDL3ZlID3RAHqSm3tXTUr5LcHi5-_IjqiwmCqqc"; // get from https://dashboard.web3auth.io
-
-const chainConfig = {
-    chainNamespace: CHAIN_NAMESPACES.EIP155,
-    chainId: "0xaa36a7",
-    rpcTarget: "https://rpc.ankr.com/eth_sepolia",
-    // Avoid using public rpcTarget in production.
-    // Use services like Infura, Quicknode etc
-    displayName: "Ethereum Sepolia Testnet",
-    blockExplorerUrl: "https://sepolia.etherscan.io",
-    ticker: "ETH",
-    tickerName: "Ethereum",
-    logo: "https://cryptologos.cc/logos/ethereum-eth-logo.png",
-};
-
-const privateKeyProvider = new EthereumPrivateKeyProvider({
-    config: { chainConfig },
-});
-
-const web3auth = new Web3Auth({
-    clientId,
-    web3AuthNetwork: WEB3AUTH_NETWORK.SAPPHIRE_DEVNET,
-    privateKeyProvider,
-});
+import { useRouter } from "next/navigation";
 
 function App() {
     const [provider, setProvider] = useState<IProvider | null>(null);
     const [loggedIn, setLoggedIn] = useState(false);
+
+    const router = useRouter();
 
     useEffect(() => {
         const init = async () => {
@@ -67,38 +34,29 @@ function App() {
         setProvider(web3authProvider);
         if (web3auth.connected) {
             setLoggedIn(true);
+            router.push("/forge");
         }
     };
 
-    const logout = async () => {
-        await web3auth.logout();
-        setProvider(null);
-        setLoggedIn(false);
+    function Button({ onClickFucn }: any) {
+        return (
+            <button onClick={onClickFucn} className="card">
+                Start Your Journey
+            </button>
+        );
+    }
+
+    const pushToForge = () => {
+        router.push("/forge");
     };
-
-    const loggedInView = (
-        <>
-            <div className="flex-container">
-                <div>
-                    <button onClick={logout} className="card">
-                        Log Out
-                    </button>
-                </div>
-            </div>
-        </>
-    );
-
-    const unloggedInView = (
-        <button onClick={login} className="card">
-            Login
-        </button>
-    );
 
     return (
         <div className="flex flex-col h-full justify-between items-center">
-            {/* <div className="grid">
-                {loggedIn ? loggedInView : unloggedInView}
-            </div> */}
+            {web3auth.connected ? (
+                <Button onClickFucn={pushToForge} />
+            ) : (
+                <Button onClickFucn={login} />
+            )}
             <div className="flex flex-col items-center justify-center h-full">
                 <div className="m-8 p-3 border-transparent rounded-full transition border-4 hover:border-black ease-in duration-300">
                     <h1 className="text-5xl font-bold">SpellForge</h1>
