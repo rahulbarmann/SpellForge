@@ -1,0 +1,13 @@
+{
+    "name": "spellforge",
+    "version": "0.1.0",
+    "scripts": {
+        "dev": "mprocs -c mprocs.yml"
+    },
+    "dependencies": {
+        "@web3auth/base": "^8.12.4",
+        "@web3auth/ethereum-provider": "^8.12.4",
+        "@web3auth/modal": "^8.12.4",
+        "mprocs": "^0.7.1"
+    }
+}
