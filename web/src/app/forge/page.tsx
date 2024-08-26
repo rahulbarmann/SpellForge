@@ -34,7 +34,7 @@ export default function Forge() {
     };
 
     return (
-        <div>
+        <div className="flex justify-around">
             <button
                 onClick={async () => {
                     await logout();
@@ -42,6 +42,13 @@ export default function Forge() {
                 }}
             >
                 Logout
+            </button>
+            <button
+                onClick={() => {
+                    router.push("/duel");
+                }}
+            >
+                Play
             </button>
         </div>
     );
