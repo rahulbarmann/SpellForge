@@ -10,6 +10,7 @@ import { Arrow } from "@/components/assets/Icons";
 function App() {
     const [provider, setProvider] = useState<IProvider | null>(null);
     const [loggedIn, setLoggedIn] = useState(false);
+    const [loading, setLoading] = useState(true);
 
     const router = useRouter();
 
@@ -27,7 +28,7 @@ function App() {
             }
         };
 
-        init();
+        init().then(() => setLoading(false));
     }, []);
 
     const login = async () => {
@@ -55,7 +56,9 @@ function App() {
         <div className="bg-black flex flex-col h-full">
             <div className="border-2 border-black rounded-xl bg-white m-4 p-4 flex flex-col min-h-[calc(100vh-2rem)]">
                 <div className="flex flex-col h-full justify-between items-center">
-                    {web3auth.connected ? (
+                    {loading ? (
+                        ""
+                    ) : loggedIn ? (
                         <Button onClickFucn={pushToForge} />
                     ) : (
                         <Button onClickFucn={login} />

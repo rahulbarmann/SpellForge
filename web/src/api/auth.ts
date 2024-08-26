@@ -34,4 +34,14 @@ export const web3auth = new Web3Auth({
     clientId,
     web3AuthNetwork: WEB3AUTH_NETWORK.SAPPHIRE_DEVNET,
     privateKeyProvider,
+    uiConfig: {
+        appName: "Spell Forge",
+        mode: "dark", // light, dark or auto
+        loginMethodsOrder: ["google", "twitter", "github", "farcaster"],
+        logoLight: "https://web3auth.io/images/web3auth-logo.svg",
+        logoDark: "https://web3auth.io/images/web3auth-logo---Dark.svg",
+        defaultLanguage: "en",
+        loginGridCol: 3,
+        primaryButton: "socialLogin", // "externalLogin" | "socialLogin" | "emailLogin"
+    },
 });
