@@ -52,18 +52,21 @@ function App() {
         router.push("/forge");
     };
 
+    const [isCardVisible, setIsCardVisible] = useState(false);
+
+    const handleArrowClick = () => {
+        setIsCardVisible(!isCardVisible);
+    };
+
     return (
         <div className="bg-black flex flex-col h-full">
             <div className="border-2 border-black rounded-xl bg-white m-4 p-4 flex flex-col min-h-[calc(100vh-2rem)]">
                 <div className="flex flex-col h-full justify-between items-center">
-                    {loading ? (
-                        ""
-                    ) : loggedIn ? (
-                        <Button onClickFucn={pushToForge} />
-                    ) : (
-                        <Button onClickFucn={login} />
-                    )}
-                    <div className="flex flex-col items-center justify-center flex-grow hover:drop-shadow-[12px_12px_5px_rgba(0,0,0,0.45)] ease-out duration-300">
+                    <div
+                        className={`flex flex-col items-center justify-center flex-grow transition-all duration-500 ease-in-out ${
+                            isCardVisible ? "opacity-50 blur-sm" : ""
+                        }`}
+                    >
                         <div className="m-8 p-4 w-max rounded-full transition hover:bg-black hover:text-[#F3F3F2] ease-in duration-200">
                             <h1 className="text-5xl font-bold">SpellForge</h1>
                         </div>
@@ -79,14 +82,46 @@ function App() {
                         </div>
                     </div>
                     <div className="mb-4">
-                        <div className="animate-bounce">
+                        <div
+                            className="animate-bounce m-3 cursor-pointer"
+                            onClick={handleArrowClick}
+                        >
                             <Arrow />
                         </div>
                     </div>
-
                     <div id="console" style={{ whiteSpace: "pre-line" }}>
                         <p style={{ whiteSpace: "pre-line" }}></p>
                     </div>
+                </div>
+            </div>
+
+            {isCardVisible && (
+                <div
+                    className="fixed inset-0 bg-black bg-opacity-50 transition-opacity duration-500 ease-in-out"
+                    onClick={() => setIsCardVisible(false)}
+                ></div>
+            )}
+            <div
+                className={`fixed left-1/2 transform -translate-x-1/2 border-2 border-black bg-[#F3F3F2] rounded-xl shadow-lg transition-all duration-500 ease-in-out ${
+                    isCardVisible
+                        ? "bottom-1/2 translate-y-1/2 opacity-100"
+                        : "bottom-0 translate-y-full opacity-0"
+                } w-11/12 max-w-lg`}
+                id="slidingCard"
+            >
+                <div className="p-8 flex flex-col justify-center">
+                    <h2 className="text-2xl text-center font-bold mb-4">
+                        Rules
+                    </h2>
+                    <p>
+                        This is the content of the sliding card that appears
+                        when you click the arrow.
+                    </p>
+                    {web3auth.connected ? (
+                        <Button onClickFucn={pushToForge} />
+                    ) : (
+                        <Button onClickFucn={login} />
+                    )}
                 </div>
             </div>
         </div>
