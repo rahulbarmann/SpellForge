@@ -59,48 +59,46 @@ function App() {
     };
 
     return (
-        <div className="bg-black flex flex-col h-full">
-            <div className="border-2 border-black rounded-xl bg-white m-4 p-4 flex flex-col min-h-[calc(100vh-2rem)]">
-                <div className="flex flex-col h-full justify-between items-center">
-                    <div
-                        className={`flex flex-col items-center justify-center flex-grow transition-all duration-500 ease-in-out ${
-                            isCardVisible ? "opacity-50 blur-sm" : ""
-                        }`}
-                    >
-                        <div className="m-8 p-4 w-max rounded-full transition hover:bg-black hover:text-[#F3F3F2] ease-in duration-200">
-                            <h1 className="text-5xl font-bold">SpellForge</h1>
-                        </div>
-                        <div className="max-w-md transition hover:drop-shadow-[2px_2px_1px_rgba(0,0,0,0.45)] ease-out duration-500">
-                            <p className="text-center">
-                                Lorem, ipsum dolor sit amet consectetur
-                                adipisicing elit. Ad tenetur ea ipsa, neque
-                                reiciendis magni explicabo delectus
-                                necessitatibus nihil veniam quaerat vero officia
-                                nisi. Pariatur inventore voluptates expedita
-                                beatae distinctio.
-                            </p>
-                        </div>
+        <>
+            <div className="flex flex-col h-full justify-between items-center">
+                <div
+                    className={`flex flex-col items-center justify-center flex-grow transition-all duration-500 ease-in-out ${
+                        isCardVisible ? "opacity-50 blur-sm" : ""
+                    }`}
+                >
+                    <div className="m-8 p-4 w-max rounded-full transition hover:bg-black hover:text-[#F3F3F2] ease-in duration-200">
+                        <h1 className="text-5xl font-bold">SpellForge</h1>
                     </div>
-                    <div className="mb-4">
-                        <div
-                            className="animate-bounce m-3 cursor-pointer"
-                            onClick={handleArrowClick}
-                        >
-                            <Arrow />
-                        </div>
-                    </div>
-                    <div id="console" style={{ whiteSpace: "pre-line" }}>
-                        <p style={{ whiteSpace: "pre-line" }}></p>
+                    <div className="max-w-md transition hover:drop-shadow-[2px_2px_1px_rgba(0,0,0,0.45)] ease-out duration-500">
+                        <p className="text-center">
+                            Lorem, ipsum dolor sit amet consectetur adipisicing
+                            elit. Ad tenetur ea ipsa, neque reiciendis magni
+                            explicabo delectus necessitatibus nihil veniam
+                            quaerat vero officia nisi. Pariatur inventore
+                            voluptates expedita beatae distinctio.
+                        </p>
                     </div>
                 </div>
+                <div className="mb-4">
+                    <div
+                        className="animate-bounce m-3 cursor-pointer"
+                        onClick={handleArrowClick}
+                    >
+                        <Arrow />
+                    </div>
+                </div>
+                <div id="console" style={{ whiteSpace: "pre-line" }}>
+                    <p style={{ whiteSpace: "pre-line" }}></p>
+                </div>
             </div>
-
-            {isCardVisible && (
-                <div
-                    className="fixed inset-0 bg-black bg-opacity-50 transition-opacity duration-500 ease-in-out"
-                    onClick={() => setIsCardVisible(false)}
-                ></div>
-            )}
+            <div>
+                {isCardVisible && (
+                    <div
+                        className="fixed inset-0 bg-black bg-opacity-50 transition-opacity duration-500 ease-in-out"
+                        onClick={() => setIsCardVisible(false)}
+                    ></div>
+                )}
+            </div>
             <div
                 className={`fixed left-1/2 transform -translate-x-1/2 border-2 border-black bg-[#F3F3F2] rounded-xl shadow-lg transition-all duration-500 ease-in-out ${
                     isCardVisible
@@ -117,14 +115,16 @@ function App() {
                         This is the content of the sliding card that appears
                         when you click the arrow.
                     </p>
-                    {web3auth.connected ? (
+                    {loading ? (
+                        ""
+                    ) : loggedIn ? (
                         <Button onClickFucn={pushToForge} />
                     ) : (
                         <Button onClickFucn={login} />
                     )}
                 </div>
             </div>
-        </div>
+        </>
     );
 }
 
