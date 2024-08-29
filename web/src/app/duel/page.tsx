@@ -25,12 +25,15 @@
 
 import { useEffect, useState } from "react";
 import { socket } from "../../socket";
+import { useRouter } from "next/navigation";
 
 export default function Home() {
     const [isConnected, setIsConnected] = useState(false);
     const [transport, setTransport] = useState("N/A");
     const [currentPlayerHP, setCurrentPlayerHP] = useState(100);
     const [otherPlayerHP, setOtherPlayerHP] = useState(100);
+
+    const router = useRouter();
 
     useEffect(() => {
         if (socket.connected) {
@@ -51,9 +54,12 @@ export default function Home() {
             setTransport("N/A");
         }
 
+        socket.on("alert", (value) => alert(value));
+
         socket.on("other-player", (msg) => {
             alert(msg);
         });
+
         socket.on("hp-revaluate", (value) => {
             value.forEach((e: any) => {
                 if (e.username == socket.id) {
@@ -62,6 +68,11 @@ export default function Home() {
                     setOtherPlayerHP(e.healthPoint);
                 }
             });
+        });
+
+        socket.on("game-over", (isWinner) => {
+            if (isWinner) alert("Congrats, You won the Duel!");
+            else alert("You were Defeated!");
         });
 
         socket.on("connect", onConnect);
@@ -76,6 +87,7 @@ export default function Home() {
             socket.off("connect", onConnect);
             socket.off("disconnect", onDisconnect);
         };
+        // eslint-disable-next-line react-hooks/exhaustive-deps
     }, []);
 
     return (
