@@ -2,8 +2,6 @@
 
 **SpellForge** is a turn-based, 2-player wizard dueling game where players battle using NFT spell cards. Defeat your opponent to win Shards, but beware – losing means sacrificing a spell from your collection. Use Shards to forge powerful new spells and climb the ranks in this strategic, high-stakes magical showdown.
 
-🛠️ Built using Stackr's SDK, NextJS, Web3Auth, Wagmi and Viem.
-
 ## 🧐 How Does It Work?
 
 SpellForge is an exciting turn-based wizard dueling game that combines strategy, collection, and blockchain technology. In this 2-player game, wizards face off using their unique collection of spell cards, represented as NFTs.
@@ -19,12 +17,21 @@ Key Features:
 
 SpellForge offers a unique blend of tactical gameplay, resource management, and the thrill of collecting and forging powerful spells. Every decision matters, from spell selection in battle to managing your Shard economy.
 
+## </> Tech Stack
+
+-   Stackr's SDK
+-   Next JS
+-   Websockets (socket.io)
+-   PostreSQL with Prisma
+-   Web3Auth
+-   Wagmi
+-   Viem
+-   Tailwind CSS
+
 ## Requirements
 
 -   [Bun](https://bun.sh) - we leverage Bun's bundler to build our micro-rollups.
-
 -   [Node (LTS)](https://nodejs.org/en/download/)
-
 -   [Git](https://git-scm.com/downloads)
 
 ## Get Started
@@ -57,5 +64,3 @@ By default
 Rollup runs on port `3210`
 
 Web App runs on port `3000`
-
-##
