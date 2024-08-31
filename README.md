@@ -1,26 +1,31 @@
-# 🎒 Stackr Hackerpack
+# 🧙‍♂️ SpellForge
 
-<h4 align="center">
-  <a href="https://docs.stf.xyz">Docs</a> |
-  <a href="https://github.com/stackrlabs/hackerpack">GitHub</a> |
-  <a href="https://stackrlabs.xyz">Website</a>
-</h4>
+**SpellForge** is a turn-based, 2-player wizard dueling game where players battle using NFT spell cards. Defeat your opponent to win Shards, but beware – losing means sacrificing a spell from your collection. Use Shards to forge powerful new spells and climb the ranks in this strategic, high-stakes magical showdown.
 
-📦 **Stackr Hackerpack** is a collection of tools and libraries to help you build decentralized applications on the Stackr ecosystem. It includes a basic Counter micro-rollup and a companion Next.js frontend to help you get started with your project.
+🛠️ Built using Stackr's SDK, NextJS, Web3Auth, Wagmi and Viem.
 
-🛠️ Built using Stackr's SDK, NextJS, Privy, Wagmi and Viem.
+## 🧐 How Does It Work?
 
-- 💭 **Opinionated APIs**: The included micro-rollup has a server exposed with some opinionated endpoints to get started easily.
-- 🪝 **Frontend hooks**: Hooks that makes it breezy to submit actions to Micro-rollup.
-- 🔐 **Embedded Wallet**: We have pre-configured Privy in this example, that can be easily extended to support in-browser wallets as wells as Embedded wallets linked to other identity providers.
+SpellForge is an exciting turn-based wizard dueling game that combines strategy, collection, and blockchain technology. In this 2-player game, wizards face off using their unique collection of spell cards, represented as NFTs.
+Key Features:
+
+-   **Spell Battles:** Use a variety of spell types including Attack, Defense, Healing, and Illusion to outsmart and defeat your opponent.
+-   **High-Stakes Gameplay:** The loser of each match forfeits a random spell from their collection, adding tension to every duel.
+-   **Shard Rewards:** Winners earn Shards (ERC-20 tokens), with the amount varying based on match difficulty.
+-   **Spell Forging:** Use Shards to create new, powerful spells. The more Shards used, the more potent the spell.
+-   **Trading System:** Trade Shards with other players to boost your forging capabilities.
+-   **Limited Collection:** Players can hold a maximum of 5 spells, encouraging strategic choices in spell selection and forging.
+-   **New Player Onboarding:** Upon account creation, new wizards choose 2 out of 3 presented spells to start their journey.
+
+SpellForge offers a unique blend of tactical gameplay, resource management, and the thrill of collecting and forging powerful spells. Every decision matters, from spell selection in battle to managing your Shard economy.
 
 ## Requirements
 
-Below are the requirements to get started with the pack:
+-   [Bun](https://bun.sh) - we leverage Bun's bundler to build our micro-rollups.
 
-- [Bun](https://bun.sh) - we leverage Bun's bundler to build our micro-rollups.
-- [Node (LTS)](https://nodejs.org/en/download/)
-- [Git](https://git-scm.com/downloads)
+-   [Node (LTS)](https://nodejs.org/en/download/)
+
+-   [Git](https://git-scm.com/downloads)
 
 ## Get Started
 
@@ -29,52 +34,28 @@ To quickly get started, you can clone this repository and follow the steps below
 1. Clone the repository
 
 ```bash
-git clone git@github.com:stackrlabs/hackerpack.git
+git clone https://github.com/rahulbarmann/SpellForge.git
 ```
 
 2. Initialize the project by running the setup script
 
 ```bash
-cd hackerpack
+cd  SpellForge
 ./setup.sh
 ```
 
 3. Run the project with `mprocs`
 
 ```bash
-bun dev
+bun  dev
 ```
 
 This sets up the micro-rollup and the web app to run concurrently. You can now visit `http://localhost:3000` to see the web app in action and interact with the rollup by sending actions.
 
 By default
+
 Rollup runs on port `3210`
+
 Web App runs on port `3000`
 
-> [!CAUTION]
-> The project comes initialized with a default private key and privy appId. It is strongly recommended to replace these with your own values in `counter/.env` and `web/.env` files respectively before deploying your application.
-
-## Documentation 📕
-
-Checkout our [docs](https://docs.stf.xyz) to learn more about Micro-rollups, the Stackr ecosystem, and how to get started with new era of decentralized applications.
-
-## Wallet Setups ⚙️
-
-This repo has been setup with [Privy](https://www.privy.io/), and we have included three modes of wallet setups:
-| Mode | Description | Branch | Deployment |
-| --- | --- | --- | --- |
-| Embedded Wallet with Custodial wallet Auth | Uses Privy's embedded wallet to sign transactions (signing pop-up can be suppressed) | [`main`](https://github.com/stackrlabs/hackerpack/) | [Try it](https://main.hackerpack.stf.xyz) |
-| Embedded Wallet with Social/Email Auth | Uses Privy's embedded wallet to sign transactions (signing pop-up can be suppressed) | [`social`](https://github.com/stackrlabs/hackerpack/tree/social) | [Try it](https://social.hackerpack.stf.xyz) |
-| Using Custodial wallet | Uses your wallet to sign transactions (requires pop-up) | [`custodial`](https://github.com/stackrlabs/hackerpack/tree/custodial) | [Try it](https://custodial.hackerpack.stf.xyz) |
-
-## Hosting ☁️
-
-- Frontend: You can deploy the NextJS application to Vercel, Netify, [GitHub Pages](https://www.freecodecamp.org/news/how-to-deploy-next-js-app-to-github-pages/) or even other providers like [AWS Amplify](https://aws.amazon.com/amplify/) etc.
-
-- Micro-rollup: We have extensive guide [here](https://docs.stf.xyz/build/guides/hosting)
-
-## More Micro-rollups 🤝
-
-Refer to the [awesome-micro-rollups](https://github.com/aashutoshrathi/awesome-micro-rollups) for a curated list of applications leveraging Micro-rollups.
-
-For more information, you can reach out to us on our [Discord](https://discord.stackrlabs.xyz/).
+##
