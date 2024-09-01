@@ -1,0 +1,11 @@
+{
+    "player1": {
+        "hp": 100,
+        "spells": ["attack1", "attack2", "heal1", "heal2", "special1"]
+    },
+    "player2": {
+        "hp": 100,
+        "spells": ["attack1", "attack2", "heal1", "heal2", "special1"]
+    },
+    "currentTurn": "player1"
+}
