@@ -26,16 +26,36 @@
 import { useEffect, useState } from "react";
 import { socket } from "../../socket";
 import { useRouter } from "next/navigation";
+import { useAction } from "@/hooks/useAction";
+import { getState } from "@/api/api";
 
 export default function Home() {
     const [isConnected, setIsConnected] = useState(false);
     const [transport, setTransport] = useState("N/A");
     const [currentPlayerHP, setCurrentPlayerHP] = useState(100);
     const [otherPlayerHP, setOtherPlayerHP] = useState(100);
+    const { submit } = useAction();
+    const [fetching, setFetching] = useState(true);
+    const [value, setValue] = useState<any>();
+    const [playerNumber, setPlayerNumber] = useState();
 
     const router = useRouter();
 
     useEffect(() => {
+        const getInitialValue = async () => {
+            try {
+                setFetching(true);
+                const res = await getState();
+                setValue(res);
+            } catch (e) {
+                alert((e as Error).message);
+                console.error(e);
+            } finally {
+                setFetching(false);
+            }
+        };
+        getInitialValue();
+
         if (socket.connected) {
             onConnect();
         }
@@ -53,6 +73,10 @@ export default function Home() {
             setIsConnected(false);
             setTransport("N/A");
         }
+
+        socket.on("playerNumber", (playerNumber) => {
+            setPlayerNumber(playerNumber);
+        });
 
         socket.on("alert", (value) => alert(value));
 
@@ -90,8 +114,43 @@ export default function Home() {
         // eslint-disable-next-line react-hooks/exhaustive-deps
     }, []);
 
+    const handleAction = async (actionName: string) => {
+        try {
+            const res = await submit(actionName, {
+                playerId: playerNumber,
+                spellId: "attack1",
+                timestamp: Date.now(),
+            });
+            if (!res) {
+                throw new Error("Failed to submit action");
+            }
+        } catch (e) {
+            alert((e as Error).message);
+            console.error(e);
+        }
+    };
+
+    const renderBody = () => {
+        return (
+            <div className="flex gap-4">
+                <button onClick={() => handleAction("castSpell")}>
+                    Spell 1 (fireball)
+                </button>
+            </div>
+        );
+    };
+
     return (
         <div className="flex flex-col justify-evenly">
+            <div>
+                <code className="mx-4">
+                    {fetching ? "fetching..." : JSON.stringify(value)}
+                </code>
+                <div>{fetching ? "fetching..." : renderBody()}</div>
+            </div>
+            <br />
+            <br />
+            <br />
             <p>Status: {isConnected ? "connected" : "disconnected"}</p>
             <p>Transport: {transport}</p>
             <button
@@ -108,6 +167,7 @@ export default function Home() {
                         spell: "fireball",
                         currentHP: currentPlayerHP,
                     });
+                    handleAction("castSpell");
                 }}
             >
                 Use Spell 1 (Fireball)

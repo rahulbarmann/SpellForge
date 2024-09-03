@@ -3,29 +3,9 @@
 import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
 import { usePrivy } from "@privy-io/react-auth";
-import { getState } from "@/api/api";
-import { ActionLogs } from "@/components/action-logs";
 
 export default function Forge() {
-    const [fetching, setFetching] = useState(true);
-    const [value, setValue] = useState<any>();
     const router = useRouter();
-
-    useEffect(() => {
-        const getInitialValue = async () => {
-            try {
-                setFetching(true);
-                const res = await getState();
-                setValue(res);
-            } catch (e) {
-                alert((e as Error).message);
-                console.error(e);
-            } finally {
-                setFetching(false);
-            }
-        };
-        getInitialValue();
-    }, []);
 
     // useEffect(() => {
     //     const init = async () => {
@@ -70,7 +50,6 @@ export default function Forge() {
             >
                 Play
             </button>
-            {fetching ? "fetching..." : JSON.stringify(value)}
         </div>
     );
 }

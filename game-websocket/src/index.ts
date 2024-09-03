@@ -160,9 +160,15 @@ io.on("connection", (socket) => {
         .to(`roomId-${roomNumber}`)
         .emit("other-player", `Player ${socket.id} joined!`);
 
+    const playerNumber =
+        players[roomNumber].length == 0 ? "player1" : "player2";
+
+    socket.emit("playerNumber", playerNumber);
+
     players[roomNumber].push({
         username: socket.id,
         sid: socket.id,
+        playerNumber,
         healthPoint: 100,
         cards: ["fireball", "holylight"],
         lastPlayed: false,
