@@ -32,7 +32,11 @@ export default function RootLayout({
                         {/* <Navbar /> */}
                         <LogsProvider>
                             <div className="flex-1 overflow-hidden">
-                                {children}
+                                <div className="bg-black flex flex-col h-full">
+                                    <div className="border-2 border-black rounded-xl bg-white m-4 p-4 flex flex-col min-h-[calc(100vh-2rem)]">
+                                        {children}
+                                    </div>
+                                </div>
                             </div>
                         </LogsProvider>
                     </div>
