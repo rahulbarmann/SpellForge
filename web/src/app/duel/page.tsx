@@ -28,6 +28,7 @@ import { socket } from "../../socket";
 import { useRouter } from "next/navigation";
 import { useAction } from "@/hooks/useAction";
 import { getState } from "@/api/api";
+import { clearInterval } from "timers";
 
 export default function Home() {
     const [isConnected, setIsConnected] = useState(false);
@@ -42,20 +43,6 @@ export default function Home() {
     const router = useRouter();
 
     useEffect(() => {
-        const getInitialValue = async () => {
-            try {
-                setFetching(true);
-                const res = await getState();
-                setValue(res);
-            } catch (e) {
-                alert((e as Error).message);
-                console.error(e);
-            } finally {
-                setFetching(false);
-            }
-        };
-        getInitialValue();
-
         if (socket.connected) {
             onConnect();
         }
@@ -114,6 +101,37 @@ export default function Home() {
         // eslint-disable-next-line react-hooks/exhaustive-deps
     }, []);
 
+    useEffect(() => {
+        const getInitialValue = async () => {
+            try {
+                setFetching(true);
+                const res = await getState();
+                setValue(res);
+            } catch (e) {
+                alert((e as Error).message);
+                console.error(e);
+            } finally {
+                setFetching(false);
+            }
+        };
+        getInitialValue();
+    }, []);
+
+    useEffect(() => {
+        const clock = setInterval(async () => {
+            await reloadState();
+        }, 1000);
+        return () => {
+            clearInterval(clock);
+        };
+        // eslint-disable-next-line react-hooks/exhaustive-deps
+    }, []);
+
+    const reloadState = async () => {
+        const response = await getState();
+        setValue(response);
+    };
+
     const handleAction = async (actionName: string) => {
         try {
             const res = await submit(actionName, {
@@ -133,9 +151,15 @@ export default function Home() {
     const renderBody = () => {
         return (
             <div className="flex gap-4">
-                <button onClick={() => handleAction("castSpell")}>
-                    Spell 1 (fireball)
-                </button>
+                Your HP:{" "}
+                {playerNumber == "player1"
+                    ? value.state.player1.hp
+                    : value.state.player2.hp}
+                <br />
+                Opponents HP:{" "}
+                {playerNumber != "player1"
+                    ? value.state.player1.hp
+                    : value.state.player2.hp}
             </div>
         );
     };
@@ -143,9 +167,7 @@ export default function Home() {
     return (
         <div className="flex flex-col justify-evenly">
             <div>
-                <code className="mx-4">
-                    {fetching ? "fetching..." : JSON.stringify(value)}
-                </code>
+                <code className="mx-4"></code>
                 <div>{fetching ? "fetching..." : renderBody()}</div>
             </div>
             <br />
@@ -172,8 +194,6 @@ export default function Home() {
             >
                 Use Spell 1 (Fireball)
             </button>
-            Your HP: {currentPlayerHP} <br />
-            Opponents HP: {otherPlayerHP}
         </div>
     );
 }
