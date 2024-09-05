@@ -1,16 +1,14 @@
 import { MicroRollup } from "@stackr/sdk";
 import { stackrConfig } from "../../stackr.config";
-import { CastSpellSchema, CAST_SPELL_SCHEMA_ID } from "./schemas";
+import { JoinRoomSchema, CastSpellSchema } from "./schemas";
 import { gameMachine } from "./machine";
 
 export const initializeMRU = async () => {
     console.log("Initializing MicroRollup...");
-    console.log("CastSpellSchema:", CastSpellSchema);
-    console.log("CAST_SPELL_SCHEMA_ID:", CAST_SPELL_SCHEMA_ID);
 
     const mru = await MicroRollup({
         config: stackrConfig,
-        actionSchemas: [CastSpellSchema],
+        actionSchemas: [JoinRoomSchema, CastSpellSchema],
         stateMachines: [gameMachine],
     });
 

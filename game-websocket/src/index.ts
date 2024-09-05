@@ -1,3 +1,5 @@
+// THIS IS THE index.ts FILE:
+
 import express, { Request, Response } from "express";
 import { createServer } from "http";
 import { Server } from "socket.io";
@@ -5,11 +7,16 @@ import { calculateSpell } from "./spells/spell-mechanics";
 
 import { ActionConfirmationStatus } from "@stackr/sdk";
 import { gameMachine } from "./stackr/machine";
-import { CAST_SPELL_SCHEMA_ID, CastSpellSchema } from "./stackr/schemas";
 import { transitions } from "./stackr/transitions";
 import cors from "cors";
+
+import {
+    JOIN_ROOM_SCHEMA_ID,
+    CAST_SPELL_SCHEMA_ID,
+    JoinRoomSchema,
+    CastSpellSchema,
+} from "./stackr/schemas";
 import { initializeMRU } from "./stackr/mru";
-// THIS IS THE index.ts FILE:
 
 const app = express();
 app.use(express.json());
@@ -37,16 +44,10 @@ let mru: any;
             JSON.stringify(transitionToSchema, null, 2)
         );
 
-        // If transitionToSchema is empty, set it manually
-        if (Object.keys(transitionToSchema).length === 0) {
-            console.log("TransitionToSchema is empty, setting manually");
-            transitionToSchema = {
-                [CAST_SPELL_SCHEMA_ID]: CAST_SPELL_SCHEMA_ID,
-            };
-            console.log(
-                "Updated TransitionToSchema:",
-                JSON.stringify(transitionToSchema, null, 2)
-            );
+        // If transitionToSchema is empty or missing joinRoom, set it manually
+        if (!transitionToSchema[JOIN_ROOM_SCHEMA_ID]) {
+            console.log("Adding joinRoom to TransitionToSchema");
+            transitionToSchema[JOIN_ROOM_SCHEMA_ID] = JOIN_ROOM_SCHEMA_ID;
         }
 
         app.get("/info", (_req: Request, res: Response) => {
@@ -55,15 +56,17 @@ let mru: any;
                 isSandbox: config.isSandbox,
                 domain: config.domain,
                 schemas: {
+                    [JOIN_ROOM_SCHEMA_ID]: {
+                        primaryType: JoinRoomSchema.EIP712TypedData.primaryType,
+                        types: JoinRoomSchema.EIP712TypedData.types,
+                    },
                     [CAST_SPELL_SCHEMA_ID]: {
                         primaryType:
                             CastSpellSchema.EIP712TypedData.primaryType,
                         types: CastSpellSchema.EIP712TypedData.types,
                     },
                 },
-                transitionToSchema: {
-                    [CAST_SPELL_SCHEMA_ID]: CAST_SPELL_SCHEMA_ID,
-                },
+                transitionToSchema,
             };
             console.log("Info response:", JSON.stringify(response, null, 2));
             res.send(response);
@@ -86,9 +89,14 @@ let mru: any;
                 console.log("Signature:", signature);
                 console.log("Inputs:", JSON.stringify(inputs, null, 2));
 
-                const schemaId = CAST_SPELL_SCHEMA_ID; // Since we only have one schema
-
-                const schema = CastSpellSchema;
+                let schema;
+                if (transition === "joinRoom") {
+                    schema = JoinRoomSchema;
+                } else if (transition === "castSpell") {
+                    schema = CastSpellSchema;
+                } else {
+                    throw new Error("Invalid transition");
+                }
 
                 console.log("Creating signed action...");
                 const signedAction = schema.actionFrom({

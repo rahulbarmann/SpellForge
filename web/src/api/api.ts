@@ -1,5 +1,5 @@
 import { urlJoin } from "@/lib/utils";
-import { MRUInfo } from "./types";
+import { MRUInfo, GameState } from "./types";
 
 const BASE_URL = process.env.NEXT_PUBLIC_API_BASE_URL as string;
 
@@ -11,23 +11,19 @@ const get = async <T>(path = ""): Promise<T> => {
     return res.json();
 };
 
-const getInfo = async () => {
+const getInfo = async (): Promise<MRUInfo> => {
     return get<MRUInfo>("info");
 };
 
-const getState = async () => {
-    return get();
+const getState = async (): Promise<GameState> => {
+    return get<GameState>();
 };
 
-/* SUBMIT ACTION */
 const submitAction = async (
-    path: string,
+    transition: string,
     data: any
-): Promise<{
-    logs: { name: string; value: number }[];
-    ackHash: string;
-}> => {
-    const res = await fetch(urlJoin(BASE_URL, path), {
+): Promise<{ logs: any[]; ackHash: string }> => {
+    const res = await fetch(urlJoin(BASE_URL, transition), {
         method: "POST",
         headers: {
             "Content-Type": "application/json",
@@ -36,8 +32,8 @@ const submitAction = async (
     });
 
     const json = await res.json();
-    if ((json as any).error) {
-        throw new Error((json as any).error);
+    if (!res.ok) {
+        throw new Error(json.error || `Failed to submit action: ${transition}`);
     }
     return json;
 };

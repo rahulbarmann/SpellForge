@@ -9,36 +9,44 @@ export const useAction = () => {
     const { mruInfo } = useMruInfo();
     const { addLog } = useLogs();
 
-    const submit = async (name: string, payload: any) => {
+    const submit = async (transition: string, payload: any) => {
         if (!mruInfo || !user?.wallet) {
-            return;
+            throw new Error("MRU info or user wallet not available");
         }
+
         const inputs = { ...payload };
         const { transitionToSchema, domain, schemas } = mruInfo;
         const msgSender = user.wallet.address;
+        const schemaName = transitionToSchema[transition];
 
-        const schemaName = transitionToSchema[name];
+        if (!schemaName) {
+            throw new Error(`No schema found for transition: ${transition}`);
+        }
+
         const schema = schemas[schemaName];
 
-        const signature = await signTypedData({
-            domain,
-            types: schema.types,
-            primaryType: schema.primaryType,
-            message: inputs,
-        });
-        console.log(signature, msgSender, inputs);
-
-        addLog({
-            type: LOG_TYPE.REQUEST,
-            time: Date.now(),
-            value: {
-                transitionName: name,
-                payload: { inputs, msgSender, signature },
-            },
-        });
+        if (!schema) {
+            throw new Error(`Schema not found for: ${schemaName}`);
+        }
 
         try {
-            const response = await submitAction(name, {
+            const signature = await signTypedData({
+                domain,
+                types: schema.types,
+                primaryType: schema.primaryType,
+                message: inputs,
+            });
+
+            addLog({
+                type: LOG_TYPE.REQUEST,
+                time: Date.now(),
+                value: {
+                    transitionName: transition,
+                    payload: { inputs, msgSender, signature },
+                },
+            });
+
+            const response = await submitAction(transition, {
                 msgSender,
                 signature,
                 inputs,
@@ -49,6 +57,7 @@ export const useAction = () => {
                 time: Date.now(),
                 value: { acknowledgementHash: response.ackHash },
             });
+
             addLog({
                 type: LOG_TYPE.C1_RESPONSE,
                 time: Date.now(),

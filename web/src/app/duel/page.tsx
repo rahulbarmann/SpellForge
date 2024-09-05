@@ -1,3 +1,4 @@
+/* eslint-disable react/no-unescaped-entities */
 // import { Player } from "@/components/duel/Player";
 
 // export default function Duel() {
@@ -28,29 +29,23 @@ import { socket } from "../../socket";
 import { useRouter } from "next/navigation";
 import { useAction } from "@/hooks/useAction";
 import { getState } from "@/api/api";
-import { clearInterval } from "timers";
+import { GameState } from "@/api/types";
 
 export default function Home() {
     const [isConnected, setIsConnected] = useState(false);
     const [transport, setTransport] = useState("N/A");
-    const [currentPlayerHP, setCurrentPlayerHP] = useState(100);
-    const [otherPlayerHP, setOtherPlayerHP] = useState(100);
+    const [gameState, setGameState] = useState<GameState | null>(null);
+    const [playerId, setPlayerId] = useState<string | null>(null);
+    const [roomId, setRoomId] = useState<string | null>(null);
     const { submit } = useAction();
     const [fetching, setFetching] = useState(true);
-    const [value, setValue] = useState<any>();
-    const [playerNumber, setPlayerNumber] = useState();
 
     const router = useRouter();
 
     useEffect(() => {
-        if (socket.connected) {
-            onConnect();
-        }
-
         function onConnect() {
             setIsConnected(true);
             setTransport(socket.io.engine.transport.name);
-
             socket.io.engine.on("upgrade", (transport) => {
                 setTransport(transport.name);
             });
@@ -61,52 +56,27 @@ export default function Home() {
             setTransport("N/A");
         }
 
-        socket.on("playerNumber", (playerNumber) => {
-            setPlayerNumber(playerNumber);
-        });
-
-        socket.on("alert", (value) => alert(value));
-
-        socket.on("other-player", (msg) => {
-            alert(msg);
-        });
-
-        socket.on("hp-revaluate", (value) => {
-            value.forEach((e: any) => {
-                if (e.username == socket.id) {
-                    setCurrentPlayerHP(e.healthPoint);
-                } else {
-                    setOtherPlayerHP(e.healthPoint);
-                }
-            });
-        });
-
-        socket.on("game-over", (isWinner) => {
-            if (isWinner) alert("Congrats, You won the Duel!");
-            else alert("You were Defeated!");
-        });
-
         socket.on("connect", onConnect);
-        socket.on("connection", (messgae) => {
-            alert(messgae);
-        });
         socket.on("disconnect", onDisconnect);
-        socket.on("create-room", (value) => {
-            alert(value);
-        });
+        socket.on("playerId", (id) => setPlayerId(id));
+        socket.on("joinedRoom", (id) => setRoomId(id));
+        socket.on("gameUpdate", (state) => setGameState(state));
+
         return () => {
             socket.off("connect", onConnect);
             socket.off("disconnect", onDisconnect);
+            socket.off("playerId");
+            socket.off("joinedRoom");
+            socket.off("gameUpdate");
         };
-        // eslint-disable-next-line react-hooks/exhaustive-deps
     }, []);
 
     useEffect(() => {
-        const getInitialValue = async () => {
+        const getInitialState = async () => {
             try {
                 setFetching(true);
-                const res = await getState();
-                setValue(res);
+                const state = await getState();
+                setGameState(state);
             } catch (e) {
                 alert((e as Error).message);
                 console.error(e);
@@ -114,86 +84,120 @@ export default function Home() {
                 setFetching(false);
             }
         };
-        getInitialValue();
+        getInitialState();
     }, []);
 
     useEffect(() => {
-        const clock = setInterval(async () => {
-            await reloadState();
+        const intervalId = setInterval(async () => {
+            if (roomId) {
+                const state = await getState();
+                setGameState(state);
+            }
         }, 1000);
-        return () => {
-            clearInterval(clock);
-        };
-        // eslint-disable-next-line react-hooks/exhaustive-deps
-    }, []);
+        return () => clearInterval(intervalId);
+    }, [roomId]);
 
-    const reloadState = async () => {
-        const response = await getState();
-        setValue(response);
+    const handleJoinRoom = async () => {
+        if (!playerId) {
+            console.error("Player ID is not set");
+            return;
+        }
+
+        try {
+            console.log("Attempting to join room for player:", playerId);
+            const res: any = await submit("joinRoom", {
+                playerId: playerId,
+                timestamp: Date.now(),
+            });
+            console.log("Join room response:", res);
+            if (!res) {
+                throw new Error("Failed to join room");
+            }
+            // The roomId should be returned in the response. Adjust as necessary.
+            if (res.roomId) {
+                setRoomId(res.roomId);
+                socket.emit("joinRoom", { playerId, roomId: res.roomId });
+            } else {
+                console.warn("Room ID not returned in response");
+            }
+        } catch (e) {
+            console.error("Error joining room:", e);
+            alert((e as Error).message);
+        }
     };
 
-    const handleAction = async (actionName: string) => {
+    const handleCastSpell = async (spellId: string) => {
+        if (!roomId || !playerId) return;
         try {
-            const res = await submit(actionName, {
-                playerId: playerNumber,
-                spellId: "attack1",
+            const res = await submit("castSpell", {
+                playerId: playerId,
+                spellId: spellId,
+                roomId: roomId,
                 timestamp: Date.now(),
             });
             if (!res) {
-                throw new Error("Failed to submit action");
+                throw new Error("Failed to cast spell");
             }
+            socket.emit("castSpell", { roomId, playerId, spellId });
         } catch (e) {
             alert((e as Error).message);
             console.error(e);
         }
     };
 
-    const renderBody = () => {
+    const renderGameState = () => {
+        if (!gameState || !roomId || !playerId) return null;
+
+        const room = gameState.rooms[roomId];
+        if (!room) return <p>Waiting for game to start...</p>;
+
+        const player = room.players.find((p: any) => p.id === playerId);
+        const opponent = room.players.find((p: any) => p.id !== playerId);
+
+        if (!player || !opponent) return <p>Player information not found</p>;
+
         return (
-            <div className="flex gap-4">
-                Your HP:{" "}
-                {playerNumber == "player1"
-                    ? value.state.player1.hp
-                    : value.state.player2.hp}
-                <br />
-                Opponents HP:{" "}
-                {playerNumber != "player1"
-                    ? value.state.player1.hp
-                    : value.state.player2.hp}
+            <div className="flex flex-col gap-4">
+                <p>Room ID: {roomId}</p>
+                <p>Your HP: {player.hp}</p>
+                <p>Opponent's HP: {opponent.hp}</p>
+                <p>
+                    Current Turn:{" "}
+                    {room.currentTurn === playerId
+                        ? "Your Turn"
+                        : "Opponent's Turn"}
+                </p>
+                <div className="flex gap-2">
+                    {player.spells.map((spell: any, index: any) => (
+                        <button
+                            key={index}
+                            onClick={() => handleCastSpell(spell)}
+                            disabled={room.currentTurn !== playerId}
+                        >
+                            Cast {spell}
+                        </button>
+                    ))}
+                </div>
             </div>
         );
     };
 
     return (
-        <div className="flex flex-col justify-evenly">
-            <div>
-                <code className="mx-4"></code>
-                <div>{fetching ? "fetching..." : renderBody()}</div>
-            </div>
-            <br />
-            <br />
-            <br />
-            <p>Status: {isConnected ? "connected" : "disconnected"}</p>
+        <div className="flex flex-col items-center justify-center min-h-screen p-4">
+            <h1 className="text-2xl font-bold mb-4">Spell Forge</h1>
+            <p>Status: {isConnected ? "Connected" : "Disconnected"}</p>
             <p>Transport: {transport}</p>
-            <button
-                onClick={() => {
-                    socket.emit("join-server", socket.id);
-                }}
-            >
-                Play
-            </button>
-            <button
-                onClick={() => {
-                    socket.emit("use-spell", {
-                        username: socket.id,
-                        spell: "fireball",
-                        currentHP: currentPlayerHP,
-                    });
-                    handleAction("castSpell");
-                }}
-            >
-                Use Spell 1 (Fireball)
-            </button>
+            <p>Player ID: {playerId || "Not set"}</p>
+            {!roomId && (
+                <button
+                    className="mt-4 px-4 py-2 bg-blue-500 text-white rounded"
+                    onClick={handleJoinRoom}
+                    disabled={!isConnected || !playerId}
+                >
+                    Join Game
+                </button>
+            )}
+            {fetching ? <p>Loading game state...</p> : renderGameState()}
         </div>
     );
 }

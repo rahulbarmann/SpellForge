@@ -4,9 +4,9 @@ import useSWR from "swr";
 import { getInfo } from "../api/api";
 
 export const useMruInfo = () => {
-  const { data: mruInfo, isLoading } = useSWR("/mru-info", getInfo, {
-    revalidateIfStale: false,
-    revalidateOnFocus: false,
-  });
-  return { mruInfo, isLoading };
+    const { data: mruInfo, isLoading } = useSWR("/mru-info", getInfo, {
+        revalidateIfStale: false,
+        revalidateOnFocus: false,
+    });
+    return { mruInfo, isLoading };
 };
