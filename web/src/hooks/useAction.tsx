@@ -10,8 +10,6 @@ export const useAction = () => {
     const { addLog } = useLogs();
 
     const submit = async (name: string, payload: any) => {
-        alert("inside useAction hook submit function");
-        console.log(user?.wallet);
         if (!mruInfo || !user?.wallet) {
             return;
         }

@@ -201,8 +201,13 @@ io.on("connection", (socket) => {
 
         console.log("The SUB ARR: ", subArr, subArr[0].lastPlayed === true);
 
-        if (numberOfSockets % 2 != 0 || subArr[0].lastPlayed === true) {
-            socket.emit("alert", "Wait For Your Opponent's Turn!");
+        if (
+            numberOfSockets % 2 != 0 ||
+            subArr[0].lastPlayed === true ||
+            (subArr[0].playerNumber == "player2" &&
+                subArr[0].healthPoint == 100)
+        ) {
+            // socket.emit("alert", "Wait For Your Opponent's Turn!");
         } else {
             players[socketRoomNumber].forEach((e: any) => {
                 if (e.sid == socket.id) {
