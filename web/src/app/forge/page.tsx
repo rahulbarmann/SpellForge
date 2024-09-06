@@ -52,17 +52,7 @@ export default function Forge() {
                             </p>
                         </div>
                     </div>
-                    <div className="w-1/2 flex flex-col items-center justify-center">
-                        <img
-                            src="../icon.png"
-                            alt="avatar"
-                            className="w-48 h-48 rounded-full border-4 border-black"
-                        />
-                        <h1 className="mt-4 text-2xl font-bold">user name</h1>
-                    </div>
-                    <div>
-                        <UploadProfile />
-                    </div>
+                    <UploadProfile />
                     <div className="w-1/4 flex items-center justify-center">
                         <div className="text-center border-4 border-black p-4 rounded-xl group hover:bg-black transition-all duration-300 ease-in-out hover:drop-shadow-[5px_5px_1px_rgba(0,0,0,0.45)]">
                             <h2 className="text-2xl font-bold text-black group-hover:text-[#f3f3f2]">
@@ -72,6 +62,11 @@ export default function Forge() {
                                 ...
                             </p>
                         </div>
+                    </div>
+                    <div>
+                        <button onClick={() => router.push("/duel")}>
+                            Start A Duel
+                        </button>
                     </div>
                 </div>
             </div>

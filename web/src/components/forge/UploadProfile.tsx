@@ -1,3 +1,4 @@
+/* eslint-disable @next/next/no-img-element */
 "use client";
 
 import React, { useState, useEffect } from "react";
@@ -10,6 +11,7 @@ export const UploadProfile = () => {
     const [username, setUserame] = useState("");
     const [image, setImage] = useState(null);
     const [isMinting, setIsMinting] = useState(false);
+    const [profileImage, setProfileImage] = useState<any>();
 
     const userAddress = user?.wallet?.address;
 
@@ -70,6 +72,9 @@ export const UploadProfile = () => {
 
         if (result.ok) {
             const res = await result.json();
+            setProfileImage(
+                `https://black-just-toucan-396.mypinata.cloud/ipfs/${res.ImageURI}`
+            );
             mintNFT(res.nftURI);
         } else {
             alert("Error Submitting Form");
@@ -86,34 +91,44 @@ export const UploadProfile = () => {
                 args: [userAddress, URI],
             });
         } catch (error) {
-            console.error("Error minting NFT:", error);
+            console.log("Error minting NFT:", error);
             setIsMinting(false);
         }
     };
     return (
-        <div className="admin-page">
-            <form onSubmit={handleSubmit} className="admin-form">
-                <label className="admin-label">
-                    Upload Profile:
-                    <input
-                        type="file"
-                        onChange={(e: any) => setImage(e.target.files[0])}
-                        className="admin-input"
-                        required
-                    />
-                </label>
-                <button
-                    type="submit"
-                    className="admin-button"
-                    disabled={isMinting}
-                >
-                    {isMinting ? (
-                        <div className="loading-circle">Loading...</div>
-                    ) : (
-                        "Submit"
-                    )}
-                </button>
-            </form>
-        </div>
+        <>
+            <div className="w-1/2 flex flex-col items-center justify-center">
+                <img
+                    src={profileImage}
+                    alt="avatar"
+                    className="w-48 h-48 rounded-full border-4 border-black"
+                />
+                <h1 className="mt-4 text-2xl font-bold">user name</h1>
+            </div>
+            <div className="admin-page">
+                <form onSubmit={handleSubmit} className="admin-form">
+                    <label className="admin-label">
+                        Upload Profile:
+                        <input
+                            type="file"
+                            onChange={(e: any) => setImage(e.target.files[0])}
+                            className="admin-input"
+                            required
+                        />
+                    </label>
+                    <button
+                        type="submit"
+                        className="admin-button"
+                        disabled={isMinting}
+                    >
+                        {isMinting ? (
+                            <div className="loading-circle">Loading...</div>
+                        ) : (
+                            "Submit"
+                        )}
+                    </button>
+                </form>
+            </div>
+        </>
     );
 };
