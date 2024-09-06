@@ -639,3 +639,16 @@ export const abi = [
 ];
 
 export const contractAddress = "0x3E0743A7C7f98F3b7172D238100B14a47CEf36E8";
+
+export const SpellsArray = [
+    "fireball",
+    "sanctuary",
+    "icefrost",
+    "windslash",
+    "heal",
+    "A",
+    "B",
+    "C",
+    "D",
+    "E",
+];
