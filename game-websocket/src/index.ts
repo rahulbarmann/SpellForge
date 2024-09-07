@@ -165,6 +165,11 @@ io.on("connection", (socket) => {
 
     socket.emit("playerNumber", playerNumber);
 
+    socket.on("getPlayerNumber", () => {
+        console.log("Client requested playerNumber");
+        socket.emit("playerNumber", playerNumber);
+    });
+
     players[roomNumber].push({
         username: socket.id,
         sid: socket.id,
@@ -207,7 +212,6 @@ io.on("connection", (socket) => {
             (subArr[0].playerNumber == "player2" &&
                 subArr[0].healthPoint == 100)
         ) {
-            // socket.emit("alert", "Wait For Your Opponent's Turn!");
         } else {
             players[socketRoomNumber].forEach((e: any) => {
                 if (e.sid == socket.id) {

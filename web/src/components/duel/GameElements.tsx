@@ -4,7 +4,6 @@
 
 import { useEffect, useState } from "react";
 import { socket } from "../../socket";
-import { useRouter } from "next/navigation";
 import { useAction } from "@/hooks/useAction";
 import { getState } from "@/api/api";
 
@@ -18,12 +17,14 @@ export function GameElements() {
     const [value, setValue] = useState<any>();
     const [playerNumber, setPlayerNumber] = useState();
 
-    const router = useRouter();
-
     useEffect(() => {
         if (socket.connected) {
             onConnect();
         }
+
+        const timeout = setTimeout(() => {
+            socket.emit("getPlayerNumber");
+        }, 100);
 
         function onConnect() {
             setIsConnected(true);
@@ -42,8 +43,6 @@ export function GameElements() {
         socket.on("playerNumber", (playerNumber) => {
             setPlayerNumber(playerNumber);
         });
-
-        socket.on("alert", (value) => alert(value));
 
         socket.on("other-player", (msg) => {
             alert(msg);
@@ -65,9 +64,6 @@ export function GameElements() {
         });
 
         socket.on("connect", onConnect);
-        socket.on("connection", (messgae) => {
-            alert(messgae);
-        });
         socket.on("disconnect", onDisconnect);
         socket.on("create-room", (value) => {
             alert(value);
@@ -75,6 +71,7 @@ export function GameElements() {
         return () => {
             socket.off("connect", onConnect);
             socket.off("disconnect", onDisconnect);
+            clearTimeout(timeout);
         };
         // eslint-disable-next-line react-hooks/exhaustive-deps
     }, []);
@@ -146,6 +143,7 @@ export function GameElements() {
             <>
                 <div className="flex flex-col justify-evenly">
                     <div>
+                        PLAYER ID: {playerNumber}
                         <code className="mx-4"></code>
                         <div>{fetching ? "fetching..." : renderBody()}</div>
                     </div>
