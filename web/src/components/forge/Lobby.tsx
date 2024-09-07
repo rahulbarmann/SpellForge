@@ -6,6 +6,7 @@ import { useRouter } from "next/navigation";
 import { usePrivy } from "@privy-io/react-auth";
 import { UploadProfile } from "@/components/forge/UploadProfile";
 import { useEffect, useState } from "react";
+import toast from "react-hot-toast";
 
 export function Lobby() {
     const router = useRouter();
@@ -29,8 +30,13 @@ export function Lobby() {
             <button
                 className="border-4 border-black text-xl p-3 rounded-xl font-bold hover:rounded-2xl hover:bg-black hover:text-[#f3f3f2] transition-all duration-300 ease-in-out"
                 disabled={disableLogout}
-                onClick={async () => {
-                    await logout();
+                onClick={() => {
+                    const logoutPromise = logout();
+                    toast.promise(logoutPromise, {
+                        loading: "Logging You Out",
+                        success: "Successfully Logged Out",
+                        error: "Error When Logging Out",
+                    });
                     router.push("/");
                 }}
             >
@@ -48,9 +54,18 @@ export function Lobby() {
                         className="border-4 border-black text-xl p-3 rounded-xl font-bold hover:rounded-2xl hover:bg-black hover:text-[#f3f3f2] transition-all duration-300 ease-in-out"
                         onClick={() => {
                             router.push("/duel");
+                            toast("Get Ready! You Entered A Duel", {
+                                icon: "⚔️",
+                                duration: 2000,
+                                style: {
+                                    borderRadius: "10px",
+                                    background: "#333",
+                                    color: "#fff",
+                                },
+                            });
                         }}
                     >
-                        Play
+                        Start A Duel
                     </button>
                 </div>
                 <div className="flex-grow flex border-4 border-black m-4 rounded-xl bg-[#f3f3f3] drop-shadow-[2px_2px_1px_rgba(0,0,0,0.45)] hover:drop-shadow-[10px_10px_5px_rgba(0,0,0,0.45)] transition-all duration-300 ease-in-out">
@@ -74,11 +89,6 @@ export function Lobby() {
                                 ...
                             </p>
                         </div>
-                    </div>
-                    <div>
-                        <button onClick={() => router.push("/duel")}>
-                            Start A Duel
-                        </button>
                     </div>
                 </div>
             </div>

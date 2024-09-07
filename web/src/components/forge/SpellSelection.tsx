@@ -6,6 +6,7 @@ import { useWriteContract, type BaseError } from "wagmi";
 import { abi, contractAddress } from "@/lib/constants";
 import { usePrivy } from "@privy-io/react-auth";
 import { useRouter } from "next/navigation";
+import toast from "react-hot-toast";
 
 function getRandomCID(arr: any, num: any) {
     const shuffled = [...arr].sort(() => 0.5 - Math.random());
@@ -31,31 +32,19 @@ export function SpellSelection() {
 
     useEffect(() => {
         if (writeStatus === "pending") {
-            alert("Minting NFT");
+            toast.loading("Started To Mint NFT", {
+                duration: 3000,
+            });
         } else if (
             writeStatus === "success" &&
             !isWriteLoading &&
             !isWriteError
         ) {
-            alert(
-                JSON.stringify({
-                    render: "NFT Minted",
-                    isLoading: false,
-                    autoClose: 5000,
-                    type: "success",
-                })
-            );
+            toast.success("NFT Minted Successfully!");
             localStorage.setItem("hasOnboarded", "true"); // use this when minting is done
             setIsMinting(false);
         } else if (writeStatus === "error") {
-            alert(
-                JSON.stringify({
-                    render: "Error Minting NFT",
-                    isLoading: false,
-                    autoClose: 5000,
-                    type: "error",
-                })
-            );
+            toast.error("Error While Minting NFT!");
             setIsMinting(false);
         }
         // eslint-disable-next-line react-hooks/exhaustive-deps
@@ -92,6 +81,7 @@ export function SpellSelection() {
                 args: [userAddress, URIs[2]],
             });
         } catch (error) {
+            toast.error("Error While Submitting!");
             console.log("Error minting NFT:", error);
             setIsMinting(false);
         }
@@ -115,6 +105,10 @@ export function SpellSelection() {
                 disabled={selectedSpells.length !== 3}
                 onClick={() => {
                     localStorage.setItem("hasVisited", "true");
+                    toast("Contrats On Choosing Your First Spells!", {
+                        icon: "👏",
+                        duration: 4000,
+                    });
                     router.push("/forge");
                 }}
             >

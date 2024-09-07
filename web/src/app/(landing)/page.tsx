@@ -2,16 +2,12 @@
 
 import { Button } from "@/components/ui/button";
 import { Arrow } from "@/components/assets/Icons";
-import { useAction } from "@/hooks/useAction";
 import { usePrivy } from "@privy-io/react-auth";
-import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { useEffect, useState } from "react";
 
 export default function Home() {
     const { ready, authenticated, login } = usePrivy();
-    const [submitting, setSubmitting] = useState(false);
-    const { submit } = useAction();
     const actionDisabled = !ready || !authenticated;
     const router = useRouter();
 
@@ -22,22 +18,6 @@ export default function Home() {
             return <Button onClick={login}>Start Your Journey</Button>;
         }
     };
-
-    // const handleAction = async (actionName: string) => {
-    //     try {
-    //         setSubmitting(true);
-    //         const res = await submit(actionName, { timestamp: Date.now() });
-    //         if (!res) {
-    //             throw new Error("Failed to submit action");
-    //         }
-    //         setValue(res.logs[0].value);
-    //     } catch (e) {
-    //         alert((e as Error).message);
-    //         console.error(e);
-    //     } finally {
-    //         setSubmitting(false);
-    //     }
-    // };
 
     const [isCardVisible, setIsCardVisible] = useState(false);
 

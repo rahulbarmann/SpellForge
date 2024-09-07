@@ -7,7 +7,6 @@ import { socket } from "../../socket";
 import { useRouter } from "next/navigation";
 import { useAction } from "@/hooks/useAction";
 import { getState } from "@/api/api";
-import { clearInterval } from "timers";
 
 export function GameElements() {
     const [isConnected, setIsConnected] = useState(false);

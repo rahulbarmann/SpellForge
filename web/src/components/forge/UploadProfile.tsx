@@ -5,13 +5,16 @@ import React, { useState, useEffect } from "react";
 import { useWriteContract, type BaseError } from "wagmi";
 import { abi, contractAddress } from "@/lib/constants";
 import { usePrivy } from "@privy-io/react-auth";
+import toast from "react-hot-toast";
 
 export const UploadProfile = () => {
     const { user } = usePrivy();
     const [username, setUserame] = useState("");
     const [image, setImage] = useState(null);
+    const [isUploadingImage, setIsUploadingImage] = useState(false);
     const [isMinting, setIsMinting] = useState(false);
     const [profileImage, setProfileImage] = useState<any>();
+    const [nftURI, setNftURI] = useState<any>();
 
     const userAddress = user?.wallet?.address;
 
@@ -24,30 +27,18 @@ export const UploadProfile = () => {
 
     useEffect(() => {
         if (writeStatus === "pending") {
-            alert("Minting NFT");
+            toast.loading("Started To Mint NFT", {
+                duration: 3000,
+            });
         } else if (
             writeStatus === "success" &&
             !isWriteLoading &&
             !isWriteError
         ) {
-            alert(
-                JSON.stringify({
-                    render: "NFT Minted",
-                    isLoading: false,
-                    autoClose: 5000,
-                    type: "success",
-                })
-            );
+            toast.success("NFT Minted Successfully!");
             setIsMinting(false);
         } else if (writeStatus === "error") {
-            alert(
-                JSON.stringify({
-                    render: "Error Minting NFT",
-                    isLoading: false,
-                    autoClose: 5000,
-                    type: "error",
-                })
-            );
+            toast.error("Error While Minting NFT!");
             setIsMinting(false);
         }
         // eslint-disable-next-line react-hooks/exhaustive-deps
@@ -55,7 +46,8 @@ export const UploadProfile = () => {
 
     const handleSubmit = async (e: any) => {
         e.preventDefault();
-        setIsMinting(true);
+
+        setIsUploadingImage(true);
 
         const data = new FormData();
         if (image) {
@@ -63,7 +55,6 @@ export const UploadProfile = () => {
             data.set("username", username);
             data.set("address", userAddress!);
         }
-        alert("Metadata Created");
 
         const result = await fetch("/api/submit", {
             method: "POST",
@@ -75,15 +66,17 @@ export const UploadProfile = () => {
             setProfileImage(
                 `https://black-just-toucan-396.mypinata.cloud/ipfs/${res.ImageURI}`
             );
-            mintNFT(res.nftURI);
+            setIsUploadingImage(false);
+            setNftURI(res.nftURI);
         } else {
-            alert("Error Submitting Form");
-            setIsMinting(false);
+            toast.error("Error While Submitting!");
+            setIsUploadingImage(false);
         }
     };
 
     const mintNFT = (URI: string) => {
         try {
+            setIsMinting(true);
             writeContract({
                 address: contractAddress,
                 abi,
@@ -91,6 +84,7 @@ export const UploadProfile = () => {
                 args: [userAddress, URI],
             });
         } catch (error) {
+            toast.error("Some Error Occured!");
             console.log("Error minting NFT:", error);
             setIsMinting(false);
         }
@@ -106,12 +100,27 @@ export const UploadProfile = () => {
                 <h1 className="mt-4 text-2xl font-bold">user name</h1>
             </div>
             <div className="admin-page">
-                <form onSubmit={handleSubmit} className="admin-form">
+                <form
+                    onSubmit={(e: any) => {
+                        const submitPromise = handleSubmit(e);
+                        toast.promise(submitPromise, {
+                            loading: "Processing...",
+                            success: "Profile Image Updated Successfully!",
+                            error: "Failed To Submit Image!",
+                        });
+                    }}
+                    className="admin-form"
+                >
                     <label className="admin-label">
                         Upload Profile:
                         <input
                             type="file"
-                            onChange={(e: any) => setImage(e.target.files[0])}
+                            onChange={(e: any) => {
+                                toast.success("Image Selected!", {
+                                    duration: 2000,
+                                });
+                                setImage(e.target.files[0]);
+                            }}
                             className="admin-input"
                             required
                         />
@@ -119,15 +128,22 @@ export const UploadProfile = () => {
                     <button
                         type="submit"
                         className="admin-button"
-                        disabled={isMinting}
+                        disabled={isUploadingImage}
                     >
-                        {isMinting ? (
-                            <div className="loading-circle">Loading...</div>
+                        {isUploadingImage ? (
+                            <div className="loading-circle">Uploading...</div>
                         ) : (
                             "Submit"
                         )}
                     </button>
                 </form>
+                <button
+                    onClick={() => {
+                        mintNFT(nftURI);
+                    }}
+                >
+                    Mint You Profile
+                </button>
             </div>
         </>
     );
