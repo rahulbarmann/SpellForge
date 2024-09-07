@@ -5,17 +5,19 @@ import { useEffect, useMemo, useState } from "react";
 import { useWriteContract, type BaseError } from "wagmi";
 import { abi, contractAddress } from "@/lib/constants";
 import { usePrivy } from "@privy-io/react-auth";
+import { useRouter } from "next/navigation";
 
 function getRandomCID(arr: any, num: any) {
     const shuffled = [...arr].sort(() => 0.5 - Math.random());
     return shuffled.slice(0, num);
 }
 
-export function SpellSelection({ setIsFirstLoad }: any) {
+export function SpellSelection() {
     const [selectedSpells, setSelectedSpells] = useState<any>([]);
     const [isMinting, setIsMinting] = useState(false);
     const { user, ready } = usePrivy();
 
+    const router = useRouter();
     const userAddress = user?.wallet?.address;
 
     const randomCIDs = useMemo(() => getRandomCID(SpellsArray, 5), []);
@@ -43,6 +45,7 @@ export function SpellSelection({ setIsFirstLoad }: any) {
                     type: "success",
                 })
             );
+            localStorage.setItem("hasOnboarded", "true"); // use this when minting is done
             setIsMinting(false);
         } else if (writeStatus === "error") {
             alert(
@@ -110,7 +113,10 @@ export function SpellSelection({ setIsFirstLoad }: any) {
         <div>
             <button
                 disabled={selectedSpells.length !== 3}
-                onClick={() => setIsFirstLoad(false)}
+                onClick={() => {
+                    localStorage.setItem("hasVisited", "true");
+                    router.push("/forge");
+                }}
             >
                 Continue
             </button>

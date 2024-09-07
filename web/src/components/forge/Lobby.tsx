@@ -1,16 +1,26 @@
+/* eslint-disable react-hooks/exhaustive-deps */
 /* eslint-disable @next/next/no-img-element */
 "use client";
 
 import { useRouter } from "next/navigation";
 import { usePrivy } from "@privy-io/react-auth";
 import { UploadProfile } from "@/components/forge/UploadProfile";
-import { useState } from "react";
-import { SpellSelection } from "./SpellSelection";
+import { useEffect, useState } from "react";
 
 export function Lobby() {
     const router = useRouter();
     const { ready, authenticated, logout } = usePrivy();
-    const [isFirstLoad, setIsFirstLoad] = useState(true);
+
+    const [isFirstVisit, setIsFirstVisit] = useState(true);
+
+    useEffect(() => {
+        const hasVisited = localStorage.getItem("hasVisited");
+        if (hasVisited) {
+            setIsFirstVisit(false);
+        } else {
+            router.push("/onboard");
+        }
+    }, []);
 
     function LogoutButton() {
         const disableLogout = !ready || (ready && !authenticated);
@@ -75,13 +85,8 @@ export function Lobby() {
         );
     }
 
-    return (
-        <>
-            {isFirstLoad ? (
-                <SpellSelection setIsFirstLoad={setIsFirstLoad} />
-            ) : (
-                renderBody()
-            )}
-        </>
-    );
+    if (!isFirstVisit) {
+        return <>{renderBody()}</>;
+    }
+    return null;
 }
