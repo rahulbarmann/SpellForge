@@ -33,7 +33,7 @@ export function SpellSelection() {
     useEffect(() => {
         if (writeStatus === "pending") {
             toast.loading("Started To Mint NFT", {
-                duration: 3000,
+                duration: 1000,
             });
         } else if (
             writeStatus === "success" &&
