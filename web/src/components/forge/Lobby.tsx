@@ -7,6 +7,7 @@ import { usePrivy } from "@privy-io/react-auth";
 import { UploadProfile } from "@/components/forge/UploadProfile";
 import { useEffect, useState } from "react";
 import toast from "react-hot-toast";
+import { SpellCollection } from "./SpellCollection";
 
 export function Lobby() {
     const router = useRouter();
@@ -90,6 +91,7 @@ export function Lobby() {
                             </p>
                         </div>
                     </div>
+                    <SpellCollection />
                 </div>
             </div>
         );

@@ -1,3 +1,5 @@
+/* eslint-disable jsx-a11y/alt-text */
+/* eslint-disable @next/next/no-img-element */
 "use client";
 
 import { SpellsCIDArray } from "@/lib/constants";
@@ -134,6 +136,7 @@ export function SpellSelection() {
     const ContinueButton = () => (
         <div>
             <button
+                className="border-4 border-black text-lg p-2 rounded-xl font-semibold hover:rounded-2xl hover:bg-black hover:text-[#f3f3f2] transition-all duration-300 ease-in-out"
                 disabled={selectedSpells.length !== 3}
                 onClick={() => {
                     localStorage.setItem("hasVisited", "true");
@@ -149,59 +152,75 @@ export function SpellSelection() {
         </div>
     );
 
-    const SpellCard = ({ spellImage, index }: any) => {
+    const SpellCard = ({ spellImage, index, stats }: any) => {
         const isSelected = selectedSpells.includes(index);
-        const css = isSelected ? "outline outline-blue-500" : "";
+        const css = isSelected
+            ? "relative group bg-black opacity-20 rounded-xl"
+            : "group relative";
 
         return (
             <div className={css}>
-                <button onClick={() => toggleSpell(index)}>{spellImage}</button>
+                <img
+                    src={`https://black-just-toucan-396.mypinata.cloud/ipfs/${spellImage}`}
+                    onClick={() => toggleSpell(index)}
+                    className="object-cover bg-black scale-100 group-hover:opacity-10 transition-all group-hover:scale-105 duration-300 ease-out h-full w-full rounded-xl"
+                ></img>
+                <div
+                    onClick={() => toggleSpell(index)}
+                    className="text-white font-bold absolute inset-0 bg-black rounded-xl flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity duration-300"
+                >
+                    {stats}
+                </div>
             </div>
         );
     };
 
     return (
-        <div>
-            <br />
+        <div className="flex  h-screen flex-col justify-center items-center border-[3px] rounded-xl border-black p-4">
             {`Current Spell Index: ${indexOfSelectedSpells}`}
-            <br />
-            {JSON.stringify([
+            {/* {JSON.stringify([
                 URItoSpellName(randomCIDs[selectedSpells[0]]),
                 URItoSpellName(randomCIDs[selectedSpells[1]]),
                 URItoSpellName(randomCIDs[selectedSpells[2]]),
-            ])}
-            <p>Selected Spells: {selectedSpells.length}</p>
-            <div className="flex flex-col">
+            ])} */}
+            <p className=" font-bold text-2xl mb-8">
+                Selected Spells: {selectedSpells.length}
+            </p>
+            <div className="grid grid-cols-5 gap-4 drop-shadow-[2px_2px_1px_rgba(0,0,0,0.45)] transition hover:drop-shadow-[10px_10px_3px_rgba(0,0,0,0.55)] ease-out duration-500">
                 {randomCIDs.map((spellImage, index) => (
                     <SpellCard
                         key={index}
                         spellImage={spellImage}
                         index={index}
+                        stats="ATTACK- ; DEFENSE- "
                     />
                 ))}
             </div>
-            <div>
-                {ready ? (
-                    <div>
-                        {isMinting ? (
-                            <div className="loading-circle">Loading...</div>
-                        ) : (
-                            <button
-                                disabled={
-                                    selectedSpells.length !== 3 ||
-                                    indexOfSelectedSpells >= 3
-                                }
-                                onClick={handleMint}
-                            >
-                                Mint Your Spells!
-                            </button>
-                        )}
-                    </div>
-                ) : (
-                    ""
-                )}
+            <div className="flex w-full justify-around mt-8">
+                <div>
+                    {ready ? (
+                        <div>
+                            {isMinting ? (
+                                <div className="loading-circle">Loading...</div>
+                            ) : (
+                                <button
+                                    className="border-4 border-black text-lg p-2 rounded-xl font-semibold hover:rounded-2xl hover:bg-black hover:text-[#f3f3f2] transition-all duration-300 ease-in-out"
+                                    disabled={
+                                        selectedSpells.length !== 3 ||
+                                        indexOfSelectedSpells >= 3
+                                    }
+                                    onClick={handleMint}
+                                >
+                                    Mint Your Spells!
+                                </button>
+                            )}
+                        </div>
+                    ) : (
+                        ""
+                    )}
+                </div>
+                <ContinueButton />
             </div>
-            <ContinueButton />
         </div>
     );
 }

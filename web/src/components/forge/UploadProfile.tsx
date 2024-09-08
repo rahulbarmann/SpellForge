@@ -220,8 +220,8 @@ export const UploadProfile = () => {
                         >
                             {isPending
                                 ? "Preparing..."
-                                : !hash
-                                ? "Confirming..."
+                                : hash
+                                ? "You Started The Minting Process"
                                 : "Mint Your Profile"}
                         </button>
                     </form>
