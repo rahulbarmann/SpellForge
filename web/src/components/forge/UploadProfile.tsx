@@ -115,7 +115,7 @@ export const UploadProfile = () => {
         }
     };
 
-    if (isConfirmed && !alerted) {
+    if (hash && !alerted) {
         toast.success("Transaction confirmed!");
 
         toast((t) => (
@@ -220,7 +220,7 @@ export const UploadProfile = () => {
                         >
                             {isPending
                                 ? "Preparing..."
-                                : isConfirming
+                                : !hash
                                 ? "Confirming..."
                                 : "Mint Your Profile"}
                         </button>

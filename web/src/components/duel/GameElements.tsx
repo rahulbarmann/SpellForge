@@ -1,3 +1,5 @@
+/* eslint-disable @next/next/no-img-element */
+/* eslint-disable jsx-a11y/alt-text */
 /* eslint-disable react-hooks/exhaustive-deps */
 /* eslint-disable react-hooks/rules-of-hooks */
 "use client";
@@ -11,8 +13,8 @@ import { HealthBar } from "./HealthBar";
 export function GameElements() {
     const [isConnected, setIsConnected] = useState(false);
     const [transport, setTransport] = useState("N/A");
-    const [currentPlayerHP, setCurrentPlayerHP] = useState(100);
-    const [otherPlayerHP, setOtherPlayerHP] = useState(100);
+    const [currentPlayerHP, setCurrentPlayerHP] = useState(1000);
+    const [otherPlayerHP, setOtherPlayerHP] = useState(1000);
     const { submit } = useAction();
     const [fetching, setFetching] = useState(true);
     const [value, setValue] = useState<any>();
@@ -104,17 +106,16 @@ export function GameElements() {
     const reloadState = async () => {
         const response = await getState();
 
-        // Only update the state if the new value is different
         if (JSON.stringify(response) !== JSON.stringify(value)) {
             setValue(response);
         }
     };
 
-    const handleAction = async (actionName: string) => {
+    const handleAction = async (actionName: string, spellId: string) => {
         try {
             const res = await submit(actionName, {
                 playerId: playerNumber,
-                spellId: "attack1",
+                spellId,
                 timestamp: Date.now(),
             });
             if (!res) {
@@ -150,20 +151,15 @@ export function GameElements() {
         "QmZ1u37HnSj8g5wWTwNdTzFKNMSVjpckLaiSN2R1MjWdai",
     ];
 
-    const HealthBar = () => {
-        const [health, setHealth] = useState(100);
-        function decreaseHealth() {
-            setHealth((prevHealth) => (prevHealth > 0 ? prevHealth - 10 : 0));
-        }
+    const HealthBar = ({ health }: any) => {
         return (
             <div className="w-full h-8 border-2 border-black bg-white rounded mb-2">
                 <div
                     className={`h-full rounded transition-all duration-300 ease-in-out bg-black`}
                     style={{
-                        width: `${health}%`,
+                        width: `${health / 10}%`,
                         transitionProperty: "width", // Ensure width transition is included
                     }}
-                    onClick={decreaseHealth}
                 ></div>
             </div>
         );
@@ -173,22 +169,36 @@ export function GameElements() {
         return (
             <div className="w-5/12 h-full border-4 border-black rounded-lg flex flex-col justify-between p-4">
                 <div>
-                    <HealthBar />
+                    <HealthBar health={health} />
                     <h1 className="text-center">{health}</h1>
                 </div>
                 <div className="text-2xl font-bold">{label}</div>
                 <div className="flex justify-between">
-                    {spellsOwnedArr.map((i) => (
-                        <div
-                            key={i}
-                            className="w-1/5 border-2 h-28 m-1 border-black rounded overflow-hidden transition-all duration-300 ease-in-out cursor-pointer hover:bg-black"
-                        >
-                            <img
-                                src={`https://black-just-toucan-396.mypinata.cloud/ipfs/${i}`}
-                                className="w-full h-full object-cover transition-all duration-300 ease-in-out hover:opacity-0"
-                            />
-                        </div>
-                    ))}
+                    {label === "Opponent" ? (
+                        ""
+                    ) : (
+                        <>
+                            {spellsOwnedArr.map((e, i) => (
+                                <div
+                                    key={i}
+                                    className="w-1/5 border-2 h-28 m-1 border-black rounded overflow-hidden transition-all duration-300 ease-in-out cursor-pointer hover:bg-black"
+                                    onClick={() => {
+                                        socket.emit("use-spell", {
+                                            username: socket.id,
+                                            spell: "fireball",
+                                            currentHP: currentPlayerHP,
+                                        });
+                                        handleAction("castSpell", e);
+                                    }}
+                                >
+                                    <img
+                                        src={`https://black-just-toucan-396.mypinata.cloud/ipfs/${e}`}
+                                        className="w-full h-full object-cover transition-all duration-300 ease-in-out hover:opacity-0"
+                                    />
+                                </div>
+                            ))}
+                        </>
+                    )}
                 </div>
             </div>
         );
@@ -198,22 +208,28 @@ export function GameElements() {
         return (
             <div className="flex flex-col items-center justify-center h-screen bg-white text-black">
                 <div className="w-full h-3/4 rounded-lg p-4 flex justify-between">
-                    <Panel
-                        label="ENTER PLAYER 1 USERNAME"
-                        health={
-                            playerNumber == "player1"
-                                ? value.state.player1.hp
-                                : value.state.player2.hp
-                        }
-                    />
-                    <Panel
-                        label="ENTER PLAYER 2 USERNAME"
-                        health={
-                            playerNumber != "player1"
-                                ? value.state.player1.hp
-                                : value.state.player2.hp
-                        }
-                    />
+                    {fetching ? (
+                        ""
+                    ) : (
+                        <>
+                            <Panel
+                                label="You"
+                                health={
+                                    playerNumber == "player1"
+                                        ? value.state.player1.hp
+                                        : value.state.player2.hp
+                                }
+                            />
+                            <Panel
+                                label="Opponent"
+                                health={
+                                    playerNumber != "player1"
+                                        ? value.state.player1.hp
+                                        : value.state.player2.hp
+                                }
+                            />
+                        </>
+                    )}
                 </div>
             </div>
         );

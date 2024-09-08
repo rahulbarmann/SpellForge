@@ -92,7 +92,7 @@ export function SpellSelection() {
         // eslint-disable-next-line react-hooks/exhaustive-deps
     }, [writeStatus]);
 
-    if (isConfirmed && !alerted) {
+    if (hash && !alerted) {
         toast.success("Transaction confirmed!");
 
         toast((t) => (
