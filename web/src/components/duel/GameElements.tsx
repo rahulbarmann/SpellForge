@@ -6,6 +6,7 @@ import { useEffect, useState } from "react";
 import { socket } from "../../socket";
 import { useAction } from "@/hooks/useAction";
 import { getState } from "@/api/api";
+import { HealthBar } from "./HealthBar";
 
 export function GameElements() {
     const [isConnected, setIsConnected] = useState(false);
@@ -93,17 +94,20 @@ export function GameElements() {
     }, []);
 
     useEffect(() => {
-        const clock = setInterval(async () => {
-            await reloadState();
-        }, 1000);
+        const clock = setInterval(reloadState, 1000);
+
         return () => {
             clearInterval(clock);
         };
-    }, []);
+    }, [value]);
 
     const reloadState = async () => {
         const response = await getState();
-        setValue(response);
+
+        // Only update the state if the new value is different
+        if (JSON.stringify(response) !== JSON.stringify(value)) {
+            setValue(response);
+        }
     };
 
     const handleAction = async (actionName: string) => {
@@ -138,35 +142,110 @@ export function GameElements() {
         );
     };
 
+    const spellsOwnedArr = [
+        "QmWo2xCgVsFG6xy7Qzz5BeEHhJjWo3krN6FwfQxPDD9EA3",
+        "QmYUw5X9U2BTgqgaZF6TCJX9TzzDuBdpuAZif5DVZrYxsT",
+        "QmYAFE4UUgYdXkbMzFpZmKHM4i2MB4k3HT6qE2rum2dZy2",
+        "QmPMgn9MLESu14yJWmRXUXHxpVjPV9CxDmZy2kzVLN8Dwd",
+        "QmZ1u37HnSj8g5wWTwNdTzFKNMSVjpckLaiSN2R1MjWdai",
+    ];
+
+    const HealthBar = () => {
+        const [health, setHealth] = useState(100);
+        function decreaseHealth() {
+            setHealth((prevHealth) => (prevHealth > 0 ? prevHealth - 10 : 0));
+        }
+        return (
+            <div className="w-full h-8 border-2 border-black bg-white rounded mb-2">
+                <div
+                    className={`h-full rounded transition-all duration-300 ease-in-out bg-black`}
+                    style={{
+                        width: `${health}%`,
+                        transitionProperty: "width", // Ensure width transition is included
+                    }}
+                    onClick={decreaseHealth}
+                ></div>
+            </div>
+        );
+    };
+
+    const Panel = ({ label, health }: any) => {
+        return (
+            <div className="w-5/12 h-full border-4 border-black rounded-lg flex flex-col justify-between p-4">
+                <div>
+                    <HealthBar />
+                    <h1 className="text-center">{health}</h1>
+                </div>
+                <div className="text-2xl font-bold">{label}</div>
+                <div className="flex justify-between">
+                    {spellsOwnedArr.map((i) => (
+                        <div
+                            key={i}
+                            className="w-1/5 border-2 h-28 m-1 border-black rounded overflow-hidden transition-all duration-300 ease-in-out cursor-pointer hover:bg-black"
+                        >
+                            <img
+                                src={`https://black-just-toucan-396.mypinata.cloud/ipfs/${i}`}
+                                className="w-full h-full object-cover transition-all duration-300 ease-in-out hover:opacity-0"
+                            />
+                        </div>
+                    ))}
+                </div>
+            </div>
+        );
+    };
+
     function page() {
         return (
-            <>
-                <div className="flex flex-col justify-evenly">
-                    <div>
-                        PLAYER ID: {playerNumber}
-                        <code className="mx-4"></code>
-                        <div>{fetching ? "fetching..." : renderBody()}</div>
-                    </div>
-                    <br />
-                    <br />
-                    <br />
-                    <p>Status: {isConnected ? "connected" : "disconnected"}</p>
-                    <button
-                        onClick={() => {
-                            socket.emit("use-spell", {
-                                username: socket.id,
-                                spell: "fireball",
-                                currentHP: currentPlayerHP,
-                            });
-                            handleAction("castSpell");
-                        }}
-                    >
-                        Use Spell 1 (Fireball)
-                    </button>
+            <div className="flex flex-col items-center justify-center h-screen bg-white text-black">
+                <div className="w-full h-3/4 rounded-lg p-4 flex justify-between">
+                    <Panel
+                        label="ENTER PLAYER 1 USERNAME"
+                        health={
+                            playerNumber == "player1"
+                                ? value.state.player1.hp
+                                : value.state.player2.hp
+                        }
+                    />
+                    <Panel
+                        label="ENTER PLAYER 2 USERNAME"
+                        health={
+                            playerNumber != "player1"
+                                ? value.state.player1.hp
+                                : value.state.player2.hp
+                        }
+                    />
                 </div>
-            </>
+            </div>
         );
     }
 
     return <>{page()}</>;
+}
+
+{
+    /* <>
+<div className="flex flex-col justify-evenly">
+    <div>
+        PLAYER ID: {playerNumber}
+        <code className="mx-4"></code>
+        <div>{fetching ? "fetching..." : renderBody()}</div>
+    </div>
+    <br />
+    <br />
+    <br />
+    <p>Status: {isConnected ? "connected" : "disconnected"}</p>
+    <button
+        onClick={() => {
+            socket.emit("use-spell", {
+                username: socket.id,
+                spell: "fireball",
+                currentHP: currentPlayerHP,
+            });
+            handleAction("castSpell");
+        }}
+    >
+        Use Spell 1 (Fireball)
+    </button>
+</div>
+</> */
 }
