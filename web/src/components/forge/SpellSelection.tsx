@@ -1,34 +1,78 @@
 "use client";
 
-import { SpellsArray } from "@/lib/constants";
-import { useEffect, useMemo, useState } from "react";
-import { useWriteContract, type BaseError } from "wagmi";
-import { abi, contractAddress } from "@/lib/constants";
+import { SpellsCIDArray } from "@/lib/constants";
+import React, { useState, useEffect, useMemo } from "react";
+import {
+    useWaitForTransactionReceipt,
+    useWriteContract,
+    type BaseError,
+} from "wagmi";
+import { devAbi, devContractAddress } from "@/lib/constants";
 import { usePrivy } from "@privy-io/react-auth";
 import { useRouter } from "next/navigation";
 import toast from "react-hot-toast";
+import { URItoSpellName } from "@/lib/utils";
 
 function getRandomCID(arr: any, num: any) {
     const shuffled = [...arr].sort(() => 0.5 - Math.random());
     return shuffled.slice(0, num);
 }
 
+const abi = devAbi;
+const contractAddress = devContractAddress;
+
 export function SpellSelection() {
     const [selectedSpells, setSelectedSpells] = useState<any>([]);
     const [isMinting, setIsMinting] = useState(false);
-    const { user, ready } = usePrivy();
+    const { user, ready, sendTransaction } = usePrivy();
+    const [indexOfSelectedSpells, setIndexOfSelectedSpells] = useState(0);
+    const [alerted, setAlerted] = useState(false);
 
     const router = useRouter();
     const userAddress = user?.wallet?.address;
 
-    const randomCIDs = useMemo(() => getRandomCID(SpellsArray, 5), []);
+    const randomCIDs = useMemo(() => getRandomCID(SpellsCIDArray, 5), []);
 
     const {
+        writeContract,
         isPending: isWriteLoading,
         status: writeStatus,
         isError: isWriteError,
-        writeContract,
+        data: hash,
+        error,
+        isPending,
     } = useWriteContract();
+
+    const { isLoading: isConfirming, isSuccess: isConfirmed } =
+        useWaitForTransactionReceipt({
+            hash,
+        });
+
+    const handleMint = async () => {
+        if (!userAddress) {
+            console.error("User address not available");
+            return;
+        }
+
+        try {
+            setAlerted(false);
+            const result: any = writeContract({
+                address: contractAddress,
+                abi,
+                functionName: "mintNFT",
+                args: [userAddress, selectedSpells[indexOfSelectedSpells]],
+            });
+
+            if (result) {
+                await sendTransaction({
+                    to: contractAddress,
+                    data: result.data,
+                });
+            }
+        } catch (err) {
+            console.error("Error minting NFT:", err);
+        }
+    };
 
     useEffect(() => {
         if (writeStatus === "pending") {
@@ -40,8 +84,6 @@ export function SpellSelection() {
             !isWriteLoading &&
             !isWriteError
         ) {
-            toast.success("NFT Minted Successfully!");
-            localStorage.setItem("hasOnboarded", "true"); // use this when minting is done
             setIsMinting(false);
         } else if (writeStatus === "error") {
             toast.error("Error While Minting NFT!");
@@ -50,42 +92,32 @@ export function SpellSelection() {
         // eslint-disable-next-line react-hooks/exhaustive-deps
     }, [writeStatus]);
 
-    const handleSubmit = async (e: any) => {
-        e.preventDefault();
-        setIsMinting(true);
-        mintNFT([
-            randomCIDs[selectedSpells[0]],
-            randomCIDs[selectedSpells[1]],
-            randomCIDs[selectedSpells[2]],
-        ]);
-    };
+    if (isConfirmed && !alerted) {
+        toast.success("Transaction confirmed!");
 
-    const mintNFT = (URIs: string[]) => {
-        try {
-            writeContract({
-                address: contractAddress,
-                abi,
-                functionName: "mintNFT",
-                args: [userAddress, URIs[0]],
-            });
-            writeContract({
-                address: contractAddress,
-                abi,
-                functionName: "mintNFT",
-                args: [userAddress, URIs[1]],
-            });
-            writeContract({
-                address: contractAddress,
-                abi,
-                functionName: "mintNFT",
-                args: [userAddress, URIs[2]],
-            });
-        } catch (error) {
-            toast.error("Error While Submitting!");
-            console.log("Error minting NFT:", error);
-            setIsMinting(false);
-        }
-    };
+        toast((t) => (
+            <span>
+                You Just Minted The{" "}
+                {URItoSpellName(
+                    randomCIDs[selectedSpells[indexOfSelectedSpells]]
+                )}{" "}
+                Spell!{" "}
+                <button onClick={() => toast.dismiss(t.id)}>
+                    <a href={`https://sepolia.etherscan.io/tx/${hash}`}>
+                        View On Block Explorer
+                    </a>
+                </button>
+            </span>
+        ));
+
+        setAlerted(true);
+        setIndexOfSelectedSpells((c) => c + 1);
+    }
+
+    if (error && !alerted) {
+        toast.error(error.message);
+        setAlerted(true);
+    }
 
     const toggleSpell = (index: number) => {
         setSelectedSpells((prevSelected: any) => {
@@ -130,10 +162,13 @@ export function SpellSelection() {
 
     return (
         <div>
+            <br />
+            {`Current Spell Index: ${indexOfSelectedSpells}`}
+            <br />
             {JSON.stringify([
-                randomCIDs[selectedSpells[0]],
-                randomCIDs[selectedSpells[1]],
-                randomCIDs[selectedSpells[2]],
+                URItoSpellName(randomCIDs[selectedSpells[0]]),
+                URItoSpellName(randomCIDs[selectedSpells[1]]),
+                URItoSpellName(randomCIDs[selectedSpells[2]]),
             ])}
             <p>Selected Spells: {selectedSpells.length}</p>
             <div className="flex flex-col">
@@ -152,8 +187,11 @@ export function SpellSelection() {
                             <div className="loading-circle">Loading...</div>
                         ) : (
                             <button
-                                disabled={selectedSpells.length !== 3}
-                                onClick={handleSubmit}
+                                disabled={
+                                    selectedSpells.length !== 3 ||
+                                    indexOfSelectedSpells >= 3
+                                }
+                                onClick={handleMint}
                             >
                                 Mint Your Spells!
                             </button>

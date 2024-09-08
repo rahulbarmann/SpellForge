@@ -7,9 +7,12 @@ import {
     useWriteContract,
     type BaseError,
 } from "wagmi";
-import { abi, contractAddress } from "@/lib/constants";
+import { devAbi, devContractAddress } from "@/lib/constants";
 import { usePrivy } from "@privy-io/react-auth";
 import toast from "react-hot-toast";
+
+const abi = devAbi;
+const contractAddress = devContractAddress;
 
 export const UploadProfile = () => {
     const [username, setUserame] = useState("");
@@ -74,7 +77,6 @@ export const UploadProfile = () => {
             !isWriteLoading &&
             !isWriteError
         ) {
-            toast.success("NFT Minted Successfully!");
             setIsMinting(false);
         } else if (writeStatus === "error") {
             toast.error("Error While Minting NFT!");
@@ -113,7 +115,7 @@ export const UploadProfile = () => {
         }
     };
 
-    if (hash && isConfirmed && !alerted) {
+    if (isConfirmed && !alerted) {
         toast.success("Transaction confirmed!");
 
         toast((t) => (
