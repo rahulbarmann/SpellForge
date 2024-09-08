@@ -30,24 +30,6 @@ export enum LOG_TYPE {
 
 export const abi = [
     {
-        inputs: [
-            {
-                internalType: "address",
-                name: "to",
-                type: "address",
-            },
-            {
-                internalType: "uint256",
-                name: "tokenId",
-                type: "uint256",
-            },
-        ],
-        name: "approve",
-        outputs: [],
-        stateMutability: "nonpayable",
-        type: "function",
-    },
-    {
         inputs: [],
         stateMutability: "nonpayable",
         type: "constructor",
@@ -260,22 +242,29 @@ export const abi = [
         type: "event",
     },
     {
+        anonymous: false,
         inputs: [
             {
+                indexed: true,
                 internalType: "address",
                 name: "to",
                 type: "address",
             },
             {
+                indexed: true,
+                internalType: "uint256",
+                name: "tokenId",
+                type: "uint256",
+            },
+            {
+                indexed: false,
                 internalType: "string",
                 name: "tokenURI",
                 type: "string",
             },
         ],
-        name: "mintNFT",
-        outputs: [],
-        stateMutability: "nonpayable",
-        type: "function",
+        name: "NFTMinted",
+        type: "event",
     },
     {
         anonymous: false,
@@ -295,6 +284,206 @@ export const abi = [
         ],
         name: "OwnershipTransferred",
         type: "event",
+    },
+    {
+        anonymous: false,
+        inputs: [
+            {
+                indexed: true,
+                internalType: "address",
+                name: "from",
+                type: "address",
+            },
+            {
+                indexed: true,
+                internalType: "address",
+                name: "to",
+                type: "address",
+            },
+            {
+                indexed: true,
+                internalType: "uint256",
+                name: "tokenId",
+                type: "uint256",
+            },
+        ],
+        name: "Transfer",
+        type: "event",
+    },
+    {
+        inputs: [],
+        name: "MAX_NFTS_PER_USER",
+        outputs: [
+            {
+                internalType: "uint256",
+                name: "",
+                type: "uint256",
+            },
+        ],
+        stateMutability: "view",
+        type: "function",
+    },
+    {
+        inputs: [
+            {
+                internalType: "address",
+                name: "to",
+                type: "address",
+            },
+            {
+                internalType: "uint256",
+                name: "tokenId",
+                type: "uint256",
+            },
+        ],
+        name: "approve",
+        outputs: [],
+        stateMutability: "nonpayable",
+        type: "function",
+    },
+    {
+        inputs: [
+            {
+                internalType: "address",
+                name: "owner",
+                type: "address",
+            },
+        ],
+        name: "balanceOf",
+        outputs: [
+            {
+                internalType: "uint256",
+                name: "",
+                type: "uint256",
+            },
+        ],
+        stateMutability: "view",
+        type: "function",
+    },
+    {
+        inputs: [
+            {
+                internalType: "uint256",
+                name: "tokenId",
+                type: "uint256",
+            },
+        ],
+        name: "getApproved",
+        outputs: [
+            {
+                internalType: "address",
+                name: "",
+                type: "address",
+            },
+        ],
+        stateMutability: "view",
+        type: "function",
+    },
+    {
+        inputs: [
+            {
+                internalType: "address",
+                name: "user",
+                type: "address",
+            },
+        ],
+        name: "getUserNFTURIs",
+        outputs: [
+            {
+                internalType: "string[]",
+                name: "",
+                type: "string[]",
+            },
+        ],
+        stateMutability: "view",
+        type: "function",
+    },
+    {
+        inputs: [
+            {
+                internalType: "address",
+                name: "owner",
+                type: "address",
+            },
+            {
+                internalType: "address",
+                name: "operator",
+                type: "address",
+            },
+        ],
+        name: "isApprovedForAll",
+        outputs: [
+            {
+                internalType: "bool",
+                name: "",
+                type: "bool",
+            },
+        ],
+        stateMutability: "view",
+        type: "function",
+    },
+    {
+        inputs: [
+            {
+                internalType: "address",
+                name: "to",
+                type: "address",
+            },
+            {
+                internalType: "string",
+                name: "tokenURI",
+                type: "string",
+            },
+        ],
+        name: "mintNFT",
+        outputs: [],
+        stateMutability: "nonpayable",
+        type: "function",
+    },
+    {
+        inputs: [],
+        name: "name",
+        outputs: [
+            {
+                internalType: "string",
+                name: "",
+                type: "string",
+            },
+        ],
+        stateMutability: "view",
+        type: "function",
+    },
+    {
+        inputs: [],
+        name: "owner",
+        outputs: [
+            {
+                internalType: "address",
+                name: "",
+                type: "address",
+            },
+        ],
+        stateMutability: "view",
+        type: "function",
+    },
+    {
+        inputs: [
+            {
+                internalType: "uint256",
+                name: "tokenId",
+                type: "uint256",
+            },
+        ],
+        name: "ownerOf",
+        outputs: [
+            {
+                internalType: "address",
+                name: "",
+                type: "address",
+            },
+        ],
+        stateMutability: "view",
+        type: "function",
     },
     {
         inputs: [],
@@ -373,219 +562,6 @@ export const abi = [
         type: "function",
     },
     {
-        anonymous: false,
-        inputs: [
-            {
-                indexed: true,
-                internalType: "address",
-                name: "from",
-                type: "address",
-            },
-            {
-                indexed: true,
-                internalType: "address",
-                name: "to",
-                type: "address",
-            },
-            {
-                indexed: true,
-                internalType: "uint256",
-                name: "tokenId",
-                type: "uint256",
-            },
-        ],
-        name: "Transfer",
-        type: "event",
-    },
-    {
-        inputs: [
-            {
-                internalType: "address",
-                name: "from",
-                type: "address",
-            },
-            {
-                internalType: "address",
-                name: "to",
-                type: "address",
-            },
-            {
-                internalType: "uint256",
-                name: "tokenId",
-                type: "uint256",
-            },
-        ],
-        name: "transferFrom",
-        outputs: [],
-        stateMutability: "nonpayable",
-        type: "function",
-    },
-    {
-        inputs: [
-            {
-                internalType: "address",
-                name: "newOwner",
-                type: "address",
-            },
-        ],
-        name: "transferOwnership",
-        outputs: [],
-        stateMutability: "nonpayable",
-        type: "function",
-    },
-    {
-        inputs: [
-            {
-                internalType: "address",
-                name: "owner",
-                type: "address",
-            },
-        ],
-        name: "balanceOf",
-        outputs: [
-            {
-                internalType: "uint256",
-                name: "",
-                type: "uint256",
-            },
-        ],
-        stateMutability: "view",
-        type: "function",
-    },
-    {
-        inputs: [],
-        name: "getAllMembers",
-        outputs: [
-            {
-                internalType: "address[]",
-                name: "",
-                type: "address[]",
-            },
-        ],
-        stateMutability: "view",
-        type: "function",
-    },
-    {
-        inputs: [],
-        name: "getAllURIs",
-        outputs: [
-            {
-                internalType: "string[]",
-                name: "",
-                type: "string[]",
-            },
-        ],
-        stateMutability: "view",
-        type: "function",
-    },
-    {
-        inputs: [
-            {
-                internalType: "uint256",
-                name: "tokenId",
-                type: "uint256",
-            },
-        ],
-        name: "getApproved",
-        outputs: [
-            {
-                internalType: "address",
-                name: "",
-                type: "address",
-            },
-        ],
-        stateMutability: "view",
-        type: "function",
-    },
-    {
-        inputs: [
-            {
-                internalType: "address",
-                name: "userAddress",
-                type: "address",
-            },
-        ],
-        name: "getUserURI",
-        outputs: [
-            {
-                internalType: "string",
-                name: "",
-                type: "string",
-            },
-        ],
-        stateMutability: "view",
-        type: "function",
-    },
-    {
-        inputs: [
-            {
-                internalType: "address",
-                name: "owner",
-                type: "address",
-            },
-            {
-                internalType: "address",
-                name: "operator",
-                type: "address",
-            },
-        ],
-        name: "isApprovedForAll",
-        outputs: [
-            {
-                internalType: "bool",
-                name: "",
-                type: "bool",
-            },
-        ],
-        stateMutability: "view",
-        type: "function",
-    },
-    {
-        inputs: [],
-        name: "name",
-        outputs: [
-            {
-                internalType: "string",
-                name: "",
-                type: "string",
-            },
-        ],
-        stateMutability: "view",
-        type: "function",
-    },
-    {
-        inputs: [],
-        name: "owner",
-        outputs: [
-            {
-                internalType: "address",
-                name: "",
-                type: "address",
-            },
-        ],
-        stateMutability: "view",
-        type: "function",
-    },
-    {
-        inputs: [
-            {
-                internalType: "uint256",
-                name: "tokenId",
-                type: "uint256",
-            },
-        ],
-        name: "ownerOf",
-        outputs: [
-            {
-                internalType: "address",
-                name: "",
-                type: "address",
-            },
-        ],
-        stateMutability: "view",
-        type: "function",
-    },
-    {
         inputs: [
             {
                 internalType: "bytes4",
@@ -636,19 +612,52 @@ export const abi = [
         stateMutability: "view",
         type: "function",
     },
+    {
+        inputs: [
+            {
+                internalType: "address",
+                name: "from",
+                type: "address",
+            },
+            {
+                internalType: "address",
+                name: "to",
+                type: "address",
+            },
+            {
+                internalType: "uint256",
+                name: "tokenId",
+                type: "uint256",
+            },
+        ],
+        name: "transferFrom",
+        outputs: [],
+        stateMutability: "nonpayable",
+        type: "function",
+    },
+    {
+        inputs: [
+            {
+                internalType: "address",
+                name: "newOwner",
+                type: "address",
+            },
+        ],
+        name: "transferOwnership",
+        outputs: [],
+        stateMutability: "nonpayable",
+        type: "function",
+    },
 ];
 
-export const contractAddress = "0x3E0743A7C7f98F3b7172D238100B14a47CEf36E8";
+export const contractAddress = "0x937ebfa0d9066d47fe1b691d17c5bb6c5b57c34d";
 
 export const SpellsArray = [
-    "fireball",
-    "sanctuary",
-    "icefrost",
-    "windslash",
-    "heal",
-    "A",
-    "B",
-    "C",
-    "D",
-    "E",
+    "QmWo2xCgVsFG6xy7Qzz5BeEHhJjWo3krN6FwfQxPDD9EA3",
+    "QmYUw5X9U2BTgqgaZF6TCJX9TzzDuBdpuAZif5DVZrYxsT",
+    "QmYAFE4UUgYdXkbMzFpZmKHM4i2MB4k3HT6qE2rum2dZy2",
+    "QmPMgn9MLESu14yJWmRXUXHxpVjPV9CxDmZy2kzVLN8Dwd",
+    "QmZ1u37HnSj8g5wWTwNdTzFKNMSVjpckLaiSN2R1MjWdai",
+    "QmZWJDUKemrvwrT5CB3J3VP99JYBsWVWjFmrDxcVbdWfGX",
+    "QmeSJdjdw6NmrKPSjZZexQbUeNvEJFTSXLPgqjWakAWeFE",
 ];

@@ -2,28 +2,67 @@
 "use client";
 
 import React, { useState, useEffect } from "react";
-import { useWriteContract, type BaseError } from "wagmi";
+import {
+    useWaitForTransactionReceipt,
+    useWriteContract,
+    type BaseError,
+} from "wagmi";
 import { abi, contractAddress } from "@/lib/constants";
 import { usePrivy } from "@privy-io/react-auth";
 import toast from "react-hot-toast";
 
 export const UploadProfile = () => {
-    const { user } = usePrivy();
     const [username, setUserame] = useState("");
     const [image, setImage] = useState(null);
     const [isUploadingImage, setIsUploadingImage] = useState(false);
     const [isMinting, setIsMinting] = useState(false);
     const [profileImage, setProfileImage] = useState<any>();
-    const [nftURI, setNftURI] = useState<any>();
+    const [URI, setURI] = useState<any>(null);
+    const [alerted, setAlerted] = useState(false);
 
-    const userAddress = user?.wallet?.address;
+    const { user, sendTransaction } = usePrivy();
+
+    const userAddress: any = user?.wallet?.address;
 
     const {
+        writeContract,
         isPending: isWriteLoading,
         status: writeStatus,
         isError: isWriteError,
-        writeContract,
+        data: hash,
+        error,
+        isPending,
     } = useWriteContract();
+
+    const { isLoading: isConfirming, isSuccess: isConfirmed } =
+        useWaitForTransactionReceipt({
+            hash,
+        });
+
+    const handleMint = async () => {
+        if (!userAddress) {
+            console.error("User address not available");
+            return;
+        }
+
+        try {
+            const result: any = writeContract({
+                address: contractAddress,
+                abi,
+                functionName: "mintNFT",
+                args: [userAddress, URI],
+            });
+
+            if (result) {
+                await sendTransaction({
+                    to: contractAddress,
+                    data: result.data,
+                });
+            }
+        } catch (err) {
+            console.error("Error minting NFT:", err);
+        }
+    };
 
     useEffect(() => {
         if (writeStatus === "pending") {
@@ -67,28 +106,35 @@ export const UploadProfile = () => {
                 `https://black-just-toucan-396.mypinata.cloud/ipfs/${res.ImageURI}`
             );
             setIsUploadingImage(false);
-            setNftURI(res.nftURI);
+            setURI(res.ImageURI);
         } else {
             toast.error("Error While Submitting!");
             setIsUploadingImage(false);
         }
     };
 
-    const mintNFT = (URI: string) => {
-        try {
-            setIsMinting(true);
-            writeContract({
-                address: contractAddress,
-                abi,
-                functionName: "mintNFT",
-                args: [userAddress, URI],
-            });
-        } catch (error) {
-            toast.error("Some Error Occured!");
-            console.log("Error minting NFT:", error);
-            setIsMinting(false);
-        }
-    };
+    if (hash && isConfirmed && !alerted) {
+        toast.success("Transaction confirmed!");
+
+        toast((t) => (
+            <span>
+                NFT Minted Successfully!
+                <button onClick={() => toast.dismiss(t.id)}>
+                    <a href={`https://sepolia.etherscan.io/tx/${hash}`}>
+                        View On Block Explorer
+                    </a>
+                </button>
+            </span>
+        ));
+
+        setAlerted(true);
+    }
+
+    if (error && !alerted) {
+        toast.error(error.message);
+        setAlerted(true);
+    }
+
     return (
         <>
             <div className="w-1/2 flex flex-col items-center justify-center">
@@ -137,13 +183,18 @@ export const UploadProfile = () => {
                         )}
                     </button>
                 </form>
-                <button
-                    onClick={() => {
-                        mintNFT(nftURI);
-                    }}
-                >
-                    Mint You Profile
-                </button>
+                <div>
+                    <button
+                        disabled={isPending || isConfirming}
+                        onClick={handleMint}
+                    >
+                        {isPending
+                            ? "Preparing..."
+                            : isConfirming
+                            ? "Confirming..."
+                            : "Mint Your Profile"}
+                    </button>
+                </div>
             </div>
         </>
     );
