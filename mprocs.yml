@@ -3,5 +3,5 @@ procs:
         cmd: ["bun", "start"]
         cwd: ./game-websocket
     frontend:
-        cmd: ["yarn", "dev"]
+        cmd: ["yarn", "test"]
         cwd: ./web

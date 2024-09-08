@@ -9,6 +9,9 @@ import { socket } from "../../socket";
 import { useAction } from "@/hooks/useAction";
 import { getState } from "@/api/api";
 import { HealthBar } from "./HealthBar";
+import toast from "react-hot-toast";
+
+let spellsArray: string[];
 
 export function GameElements() {
     const [isConnected, setIsConnected] = useState(false);
@@ -47,9 +50,9 @@ export function GameElements() {
             setPlayerNumber(playerNumber);
         });
 
-        socket.on("other-player", (msg) => {
-            alert(msg);
-        });
+        // socket.on("other-player", (msg) => {
+        //     alert(msg);
+        // });
 
         socket.on("hp-revaluate", (value) => {
             value.forEach((e: any) => {
@@ -62,8 +65,8 @@ export function GameElements() {
         });
 
         socket.on("game-over", (isWinner) => {
-            if (isWinner) alert("Congrats, You won the Duel!");
-            else alert("You were Defeated!");
+            if (isWinner) toast("Congrats, You won the Duel!");
+            else toast("You were Defeated!");
         });
 
         socket.on("connect", onConnect);
@@ -84,6 +87,11 @@ export function GameElements() {
             try {
                 setFetching(true);
                 const res = await getState();
+                spellsArray = [
+                    localStorage.getItem("URI1")!,
+                    localStorage.getItem("URI2")!,
+                    localStorage.getItem("URI3")!,
+                ];
                 setValue(res);
             } catch (e) {
                 alert((e as Error).message);
@@ -144,7 +152,7 @@ export function GameElements() {
     };
 
     const spellsOwnedArr = [
-        "QmWo2xCgVsFG6xy7Qzz5BeEHhJjWo3krN6FwfQxPDD9EA3",
+        "QmZWJDUKemrvwrT5CB3J3VP99JYBsWVWjFmrDxcVbdWfGX",
         "QmYUw5X9U2BTgqgaZF6TCJX9TzzDuBdpuAZif5DVZrYxsT",
         "QmYAFE4UUgYdXkbMzFpZmKHM4i2MB4k3HT6qE2rum2dZy2",
         "QmPMgn9MLESu14yJWmRXUXHxpVjPV9CxDmZy2kzVLN8Dwd",
@@ -172,16 +180,18 @@ export function GameElements() {
                     <HealthBar health={health} />
                     <h1 className="text-center">{health}</h1>
                 </div>
-                <div className="text-2xl font-bold">{label}</div>
-                <div className="flex justify-between">
+                <div className="text-2xl text-center border-2 rounded-lg border-black py-2 font-bold">
+                    {label}
+                </div>
+                <div className="flex justify-center">
                     {label === "Opponent" ? (
                         ""
                     ) : (
                         <>
-                            {spellsOwnedArr.map((e, i) => (
+                            {spellsArray!.map((e: any, i) => (
                                 <div
                                     key={i}
-                                    className="w-1/5 border-2 h-28 m-1 border-black rounded overflow-hidden transition-all duration-300 ease-in-out cursor-pointer hover:bg-black"
+                                    className="w-1/5 border-2 h-28 m-1 border-black rounded overflow-hidden transition-all duration-300 ease-in-out cursor-pointer hover:bg-black relative group"
                                     onClick={() => {
                                         socket.emit("use-spell", {
                                             username: socket.id,
@@ -193,7 +203,7 @@ export function GameElements() {
                                 >
                                     <img
                                         src={`https://black-just-toucan-396.mypinata.cloud/ipfs/${e}`}
-                                        className="w-full h-full object-cover transition-all duration-300 ease-in-out hover:opacity-0"
+                                        className="w-full h-full object-cover transition-all duration-300 ease-in-out group-hover:opacity-30"
                                     />
                                 </div>
                             ))}

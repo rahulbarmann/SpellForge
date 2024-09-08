@@ -1,11 +1,19 @@
 {
     "player1": {
-        "hp": 100,
-        "spells": ["attack1", "attack2", "heal1", "heal2", "special1"]
+        "hp": 1000,
+        "spells": [
+            "QmZWJDUKemrvwrT5CB3J3VP99JYBsWVWjFmrDxcVbdWfGX",
+            "QmYAFE4UUgYdXkbMzFpZmKHM4i2MB4k3HT6qE2rum2dZy2",
+            "QmZ1u37HnSj8g5wWTwNdTzFKNMSVjpckLaiSN2R1MjWdai"
+        ]
     },
     "player2": {
-        "hp": 100,
-        "spells": ["attack1", "attack2", "heal1", "heal2", "special2"]
+        "hp": 1000,
+        "spells": [
+            "QmYUw5X9U2BTgqgaZF6TCJX9TzzDuBdpuAZif5DVZrYxsT",
+            "QmYAFE4UUgYdXkbMzFpZmKHM4i2MB4k3HT6qE2rum2dZy2",
+            "QmPMgn9MLESu14yJWmRXUXHxpVjPV9CxDmZy2kzVLN8Dwd"
+        ]
     },
     "currentTurn": "player1"
 }

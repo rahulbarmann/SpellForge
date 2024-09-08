@@ -50,7 +50,7 @@ let mru: any;
         }
 
         app.get("/info", (_req: Request, res: Response) => {
-            console.log("Handling /info request");
+            // console.log("Handling /info request");
             const response = {
                 isSandbox: config.isSandbox,
                 domain: config.domain,
@@ -65,7 +65,7 @@ let mru: any;
                     [CAST_SPELL_SCHEMA_ID]: CAST_SPELL_SCHEMA_ID,
                 },
             };
-            console.log("Info response:", JSON.stringify(response, null, 2));
+            // console.log("Info response:", JSON.stringify(response, null, 2));
             res.send(response);
         });
 
@@ -123,7 +123,7 @@ let mru: any;
         });
 
         app.get("/", (_req: Request, res: Response) => {
-            console.log("Handling / request");
+            // console.log("Handling / request");
             res.json({ state: machine.state });
         });
     } catch (error) {
@@ -153,7 +153,7 @@ io.on("connection", (socket) => {
         players.push([]);
     }
 
-    console.log(players);
+    // console.log(players);
 
     playerCount++;
     socket
@@ -166,7 +166,7 @@ io.on("connection", (socket) => {
     socket.emit("playerNumber", playerNumber);
 
     socket.on("getPlayerNumber", () => {
-        console.log("Client requested playerNumber");
+        // console.log("Client requested playerNumber");
         socket.emit("playerNumber", playerNumber);
     });
 
@@ -174,7 +174,7 @@ io.on("connection", (socket) => {
         username: socket.id,
         sid: socket.id,
         playerNumber,
-        healthPoint: 100,
+        healthPoint: 1000,
         cards: ["fireball", "holylight"],
         lastPlayed: false,
     });
@@ -184,27 +184,27 @@ io.on("connection", (socket) => {
     socket.on("use-spell", async (arg) => {
         const socketRoomNumber = Number([...socket.rooms][1].split("-")[1]);
 
-        console.log("ALL OF THE ROOMS FOR THIS SOCKET:", socket.rooms);
-        console.log(
-            "THE ROOM ID FOR THIS SOCKET:",
-            [...socket.rooms][1].split("-")[1]
-        );
+        // console.log("ALL OF THE ROOMS FOR THIS SOCKET:", socket.rooms);
+        // console.log(
+        //     "THE ROOM ID FOR THIS SOCKET:",
+        //     [...socket.rooms][1].split("-")[1]
+        // );
 
         const totalSockets = await io
             .in(`roomId-${socketRoomNumber}`)
             .fetchSockets();
         const numberOfSockets = totalSockets.length;
 
-        console.log(
-            "NUMBER OF ACTIVE SOCKETS IN THIS ROOM:",
-            totalSockets.length
-        );
+        // console.log(
+        //     "NUMBER OF ACTIVE SOCKETS IN THIS ROOM:",
+        //     totalSockets.length
+        // );
 
         const subArr = players[socketRoomNumber].filter(
             (e: any) => e.sid == socket.id
         );
 
-        console.log("The SUB ARR: ", subArr, subArr[0].lastPlayed === true);
+        // console.log("The SUB ARR: ", subArr, subArr[0].lastPlayed === true);
 
         if (
             numberOfSockets % 2 != 0 ||
@@ -240,7 +240,7 @@ io.on("connection", (socket) => {
             async function test() {
                 sockets = await io.fetchSockets();
             }
-            test().then(() => console.log(sockets.length));
+            // test().then(() => console.log(sockets.length));
             const newStat = calculateSpell(arg.spell, myHP!, otherPlayerHP!);
             players[socketRoomNumber].forEach((e: any) => {
                 if (e.sid != socket.id) {
@@ -249,9 +249,9 @@ io.on("connection", (socket) => {
                     e.healthPoint = newStat.currentPlayerHP;
                 }
             });
-            console.log(players);
+            // console.log(players);
 
-            console.log(newStat, arg.spell);
+            // console.log(newStat, arg.spell);
 
             if (newStat.currentPlayerHP <= 0) {
                 socket.emit("game-over", false);
@@ -270,7 +270,7 @@ io.on("connection", (socket) => {
         }
     });
 });
-console.log("glhf1");
+// console.log("glhf1");
 
 httpServer.listen(8080, () => {
     console.log("Listening on PORT 8080");
